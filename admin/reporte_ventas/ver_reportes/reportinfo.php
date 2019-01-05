@@ -10,6 +10,7 @@ $sql = "SELECT * FROM product_in_report WHERE report_id = '$reportId' ";
 
 $result = mysqli_query($conn, $sql);
 if(mysqli_num_rows($result) > 0){
+	// echo "<div class='col-md-12'>";
 	while($row = mysqli_fetch_assoc($result)) {
 		$prod_sql = "SELECT `title`, `platform` FROM products WHERE id = '{$row['product_id']}' ";
 		$product_result = mysqli_query($conn, $prod_sql);
@@ -21,13 +22,8 @@ if(mysqli_num_rows($result) > 0){
 			echo 	"<div class='col-md-2'>".$row["product_condition"]."</div>";
 			echo "</div>";
 		}
-
-
-		// echo    	"<div class='row'>";
-		// echo 			"<div class='col'>";
-		// echo 			"</div>";
-		// echo    	"</div>";
 	}
+	// echo "</div>";
 }
 
 // echo $reportId;
