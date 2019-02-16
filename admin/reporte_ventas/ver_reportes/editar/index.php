@@ -4,97 +4,104 @@
 <html>
 <head>
 	<title>main page</title>
-	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/jquery-ui.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/all.min.css">
 
-<style type="text/css">
-	body{
-	    font-family: Arail, sans-serif;
-	}
-	/* Formatting search box */
-	.search-box-reporte{
-	    width: 300px;
-	    position: relative;
-	    display: inline-block;
-	    font-size: 14px;
-	}
-	.search-box-reporte input[type="text"]{
-	    height: 32px;
-	    padding: 5px 10px;
-	    border: 1px solid #CCCCCC;
-	    font-size: 14px;
-	}
-	.result-reporte{
-	    position: absolute;        
-	    z-index: 999;
-	    /*top: 100%;*/
-	    left: 0;
-	    background-color: #fff;
-	}
-	.search-box-reporte input[type="text"], .result-reporte{
-	    width: 100%;
-	    box-sizing: border-box;
-	}
-	/* Formatting result items */
-	.result-reporte p{
-	    margin: 0;
-	    padding: 7px 10px;
-	    border: 1px solid #CCCCCC;
-	    border-top: none;
-	    cursor: pointer;
-	}
-	.result-reporte p:hover{
-	    background: #f2f2f2;
-	}
+	
 
-	.delete-product {
-	    color: #ee4338;
-	    cursor: pointer;
-	    font-size: 20px;
-	}
+	<style type="text/css">
+		body{
+		    font-family: Arail, sans-serif;
+		}
+		/* Formatting search box */
+		.search-box-reporte{
+		    width: 300px;
+		    position: relative;
+		    display: inline-block;
+		    font-size: 14px;
+		}
+		.search-box-reporte input[type="text"]{
+		    height: 32px;
+		    padding: 5px 10px;
+		    border: 1px solid #CCCCCC;
+		    font-size: 14px;
+		}
+		.result-reporte{
+		    position: absolute;        
+		    z-index: 999;
+		    /*top: 100%;*/
+		    left: 0;
+		    background-color: #fff;
+		}
+		.search-box-reporte input[type="text"], .result-reporte{
+		    width: 100%;
+		    box-sizing: border-box;
+		}
+		/* Formatting result items */
+		.result-reporte p{
+		    margin: 0;
+		    padding: 7px 10px;
+		    border: 1px solid #CCCCCC;
+		    border-top: none;
+		    cursor: pointer;
+		}
+		.result-reporte p:hover{
+		    background: #f2f2f2;
+		}
 
-	/*---------------------*/
-	.search-box-float{
-		overflow: hidden;
-		padding-right: .5em;
-	}
-	#producttype{
-		float: right;
-	}
+		.delete-product {
+		    color: #ee4338;
+		    cursor: pointer;
+		    font-size: 20px;
+		}
 
-	.rep-prod-img img{
-		width: 101px;
-		height: 124px;
-	}
-	.prod-info{
-		margin-bottom: 6px;
-	}
-	.prod-info input[type=number]{
-		width: 35%;
-	}
-	/*-------status styling-----------*/
-	.warning{
-		/*background-color: red;*/
-		border-color: red;
-	}
+		/*---------------------*/
+		.search-box-float{
+			overflow: hidden;
+			padding-right: .5em;
+		}
+		#producttype{
+			float: right;
+		}
 
-	/*font awesome icons---------------*/
-	.fa-trash {
-	    margin-left: 6px;
-	    vertical-align: 0px;
-	}
-</style>
+		.rep-prod-img img{
+			width: 101px;
+			height: 124px;
+		}
+		.prod-info{
+			margin-bottom: 6px;
+		}
+		.prod-info input[type=number]{
+			width: 35%;
+		}
+		/*-------status styling-----------*/
+		.warning{
+			/*background-color: red;*/
+			border-color: red;
+		}
+
+		/*font awesome icons---------------*/
+		.fa-trash {
+		    margin-left: 6px;
+		    vertical-align: 0px;
+		}
+	</style>
 </head>
 <body>
 <?php
 $db_connect = $_SERVER['DOCUMENT_ROOT'].'/gameliquidators/includes/db_connect.php';
+$report_status = "";
+$report_notes= "";
+$report_date = "";
+// $report_id_post = "";
 
-if(isset($_POST['createreport'])){
+if(isset($_POST['updatereport'])){
 	require $db_connect;
 
+	// array of added products in sale report
 	$numberOfProducts = sizeof($_POST['product_id']);
 	$product_counter = 0;
 
@@ -103,18 +110,23 @@ if(isset($_POST['createreport'])){
 
 	$notes = $_POST['notes'];
 	$date = $_POST['datepicker'];
-	$sql = "INSERT INTO sale_report (status, notes, created_at) VALUES('pending', '$notes', '$date')";
+	$report_id_post = $_POST['reportid'];
+	$status = $_POST['report-status'];
+	// $sql = "INSERT INTO sale_report (status, notes, created_at) VALUES('pending', '$notes', '$date')";
+	$sql_update_report = "UPDATE sale_report 
+	SET status='$status', notes='$notes', created_at='$date'
+	WHERE id=$report_id_post";
 
-	if ($conn->query($sql) === TRUE) {
-		$last_id = $conn->insert_id;
-	    echo "New sale record created successfully";
+	if ($conn->query($sql_update_report) === TRUE) {
+		// $last_id = $conn->insert_id;
+	    echo "sale record updated successfully";
 
 	    for ($x = $product_counter; $x < $numberOfProducts; $x++) {
 	    	$qty = 0;
 	    	$salePrice = 0;
 	    	$condition = "";
 	    	$productId = 0;
-
+// ---------------------------------------------
 	    	foreach ($_POST as $key => $value) {
 	    		switch ($key) {
 	    		    case "qty":
@@ -133,25 +145,126 @@ if(isset($_POST['createreport'])){
 	    	}
 	    	$product_counter++;
 
-	    	$prod_sql = "INSERT INTO product_in_report 
-	    	(report_id, product_id, quantity, product_condition, sale_price)
-	    	VALUES ($last_id, $productId, $qty, '{$condition}', $salePrice)";
+	    	$product_sel_sql = "SELECT * FROM product_in_report 
+	    	WHERE report_id = '$report_id_post' 
+	    	AND product_id = '$productId' ";
 
-	    	echo $prod_sql."<br>";
 
-	    	if ($conn->query($prod_sql) === TRUE) {
-	    		echo "created new product in report record";
+	    	$result = mysqli_query($conn, $product_sel_sql);
+	    	if(mysqli_num_rows($result) > 0){
+	    		$prod_row = mysqli_fetch_assoc($result);
+	    		$last_prod_id = $prod_row['id'];
+
+	    		$prod_updt_sql = "UPDATE product_in_report 
+	    		SET quantity = '$qty', product_condition = '$condition', sale_price = '$salePrice'
+	    		WHERE id='$last_prod_id ' ";
+
+	    		if(!mysqli_query($conn, $prod_updt_sql)){
+	    			header("Location: ../?message=error on update");
+	    			die();
+	    		}
 	    	}
+	    	else{
+	    		$prod_updt_sql = "INSERT INTO product_in_report
+	    		(report_id, product_id, quantity, product_condition, sale_price)
+	    		VALUES ($report_id_post, $productId, $qty, '$condition', $salePrice)";
 
+	    		// echo $prod_updt_sql;
+	    		if(!mysqli_query($conn, $prod_updt_sql)){
+	    			header("Location: ../?message=error on product insert");
+	    			die();
+	    		}
+	    	}
 	    }
 
-	    header("Location: ../");
+	    header("Location: ../?message=successful update");
 	    die();
 
 
 	} else {
-	    echo "Error: " . $sql . "<br>" . $conn->error;
+	    echo "Error: " . $sql_update_report . "<br>" . $conn->error;
 	}
+}
+
+function renderSaleReport($connection, $report_id){
+	$url = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/images/';
+	$samplevar = "good bye";
+
+	$sql_report_info = "SELECT * FROM sale_report WHERE id = $report_id";
+	// echo $sql_report_info;
+	$result_report_info = mysqli_query($connection, $sql_report_info);
+	if(mysqli_num_rows($result_report_info) > 0){
+		$row_report_info = mysqli_fetch_assoc($result_report_info);
+		global $report_date, $report_status, $report_notes;
+		$report_date = $row_report_info["created_at"];
+		$report_status = $row_report_info["status"];
+		$report_notes = $row_report_info["notes"];
+	}
+
+	$sql = "SELECT * FROM product_in_report 
+	WHERE report_id =  $report_id";
+
+	$result = mysqli_query($connection, $sql);
+
+	if(mysqli_num_rows($result) > 0){
+		foreach ($result as $key => $product) {
+			// echo "<p> {$value['product_condition']} </p>";
+			$product_id = $product['product_id'];
+
+			$product_sql = "SELECT products.title, products.platform, images_table.image_name 
+			FROM products LEFT JOIN images_table 
+			ON products.id=images_table.product_id WHERE products.id = $product_id";
+
+			// echo $product_sql;
+			// die();
+
+			$result_product = mysqli_query($connection, $product_sql);
+
+			if(mysqli_num_rows($result_product) > 0){
+				foreach ($result_product as $key => $value) {
+					$product_platform = $value['platform'];
+					$product_title = $value['title'];
+					$product_price = $product['sale_price'];
+					$product_qty = $product['quantity'];
+
+					if($product['product_condition'] == 'usado'){
+						$product_conditions = "<option value='usado' selected='selected'>usado</option>";
+						$product_conditions .= "<option value='nuevo'>nuevo</option>";
+					}
+					else{
+						$product_conditions = "<option value='usado'>usado</option>";
+						$product_conditions .= "<option value='nuevo' selected='selected'>nuevo</option>";
+					}
+
+					if(is_null($value['image_name'])){
+						$image_src = $url . "empty.gif";
+					}
+					else{
+						$image_src = $url . $value['image_name'];
+					}
+					echo "<div class='row'>";
+					echo 	"<div class='col-auto rep-prod-img'>";
+					echo 		"<img src='$image_src' width='57' height='71'> <br>";
+					echo 		"<h4 class='delete-product'>remover <i class='fas fa-trash fa-xs'></i></h4>";
+					echo 	"</div>";
+					echo 	"<div class='col-auto'>";
+					echo 		"<p class='prod-info' product_id='$product_id'>{$product_platform}: $product_title</p>";
+					echo 		"<p class='prod-info'>Cantidad: <input type='number' maxlength='4' value='$product_qty' ";
+					echo 		"name='qty[]' class='qty' min='1'><span class=''></span></p>";
+					echo 		"<p class='prod-info'>Precio: <input type='text' maxlength='8' name='price[]' ";
+					echo 		"class='price' value='$product_price'><span class=''></span></p> ";
+					echo 		"<select name='condition[]'>";
+					echo 			"$product_conditions";
+					echo 		"</select>";
+					echo 		"<input type='hidden' name='product_id[]' value='{$product_id}'>";
+					echo 	"</div>";
+					echo "</div>";
+				}
+			}
+
+		}
+	}
+
 }
 
 function checkEmptyFields($product_counter, $numberOfProducts){
@@ -177,7 +290,7 @@ function checkEmptyFields($product_counter, $numberOfProducts){
 
 
 <div>
-	<?php include '../../includes/navbar.php'; ?>
+	<?php include '../../../../includes/navbar.php'; ?>
 	<h1>Crear Reporte de Ventas</h1>
 	<h5>Encuentra el producto para agregar al reporte</h5>
 	<div class="row">
@@ -201,18 +314,41 @@ function checkEmptyFields($product_counter, $numberOfProducts){
 			<h2>Productos Agregados</h2>
 			<form method="post" action="" name="saleReportForm" id="saleReportForm">
 				<div id="added-products">
+					<?php
+					if(isset($_GET['reportid'])){
+						require $db_connect;
+						$reportid = $_GET['reportid'];
+						renderSaleReport($conn, $reportid);
+					}
 					
+					?>
 				</div>
 				<div class="report-sale-div">
 					Total: <span class="total-sale">0</span>
 				</div>
 				<label>Fecha del Reporte</label>
-				<input type="text" id="datepicker" name="datepicker" autocomplete="off">
+				<input type="text" id="datepicker" name="datepicker" autocomplete="off" value="<?php echo $report_date; ?>">
 				<span class=''></span><br>
-				<label>Notas</label>
-				<textarea rows="3" cols="30" name="notes" id="notes"></textarea>
+
+				<label>Estatus del reporte</label>
+				<select id="reporstatus" name="report-status">
+					<?php
+					if($report_status == "pendiente"){
+						echo "<option selected='selected' value='pendiente'>pendiente</option>";
+						echo "<option value='aprobado'>aprobado</option>";
+					}
+					else{
+						echo "<option value='pendiente'>pendiente</option>";
+						echo "<option selected='selected' value='aprobado'>aprobado</option>";
+					}
+					?>
+				</select><br>
+
+				<label>Notas:</label>
+				<textarea rows="3" cols="30" name="notes" id="notes"><?php echo $report_notes; ?></textarea>
 				<br>
-				<input type="submit" name="createreport" value="crear">
+				<input type="hidden" name="reportid" value="<?php echo $reportid; ?>">
+				<input type="submit" name="updatereport" value="actualizar">
 			</form>
 
 		</div>
@@ -232,6 +368,8 @@ function checkEmptyFields($product_counter, $numberOfProducts){
 
 <script type="text/javascript">
 $(document).ready(function(){
+	// adds the total as soon as page is loaded
+	addTotal();
 	// dynamic search by typing
     $('.search-box-reporte input[type="text"]').on("keyup input", function(){
         /* Get input value on change */

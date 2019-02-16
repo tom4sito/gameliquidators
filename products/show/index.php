@@ -5,7 +5,7 @@ $includes_dir = $doc_root.'/gameliquidators/includes/';
 require $includes_dir.'db_connect.php';
 
 if(isset($_SESSION['username'])){
-    echo "session started username: ".$_SESSION['username'];
+    // echo "session started username: ".$_SESSION['username'];
 }
 ?>
 
@@ -22,10 +22,9 @@ if(isset($_SESSION['username'])){
 <div>
 <?php 
 include($includes_dir."navbar.php");
-$platform = $_GET["platform"];
-$product_type = $_GET["type"];
+$product_id = $_GET["id"];
 // echo $platform;
-$sql = "SELECT * FROM products WHERE platform = '$platform' AND product_type = '$product_type' ";
+$sql = "SELECT * FROM products WHERE id = '$product_id' ";
 $result = $conn->query($sql);
 
 
@@ -46,16 +45,6 @@ if ($result->num_rows > 0) {
     echo "0 results";
 }
 
-// if ($result->num_rows > 0) {
-//     while($row = $result->fetch_assoc()) {
-//     	echo '<div id="game container">';
-//     		echo '<div> id:'. $row["id"] . ' - Name: ' . $row["title"]. ' ' . $row["platform"].'<a href="'.$doc_root.'/admin/edit.php?id='.$row["id"].'"> Edit </a> <a href="'.$doc_root.'/admin/controllers/deleteproduct.php?id='.$row["id"].'"> Delete</a>';
-//     		echo '</div>';
-//     	echo '</div>';
-//     }
-// } else {
-//     echo "0 results";
-// }
 
 $conn->close();
 

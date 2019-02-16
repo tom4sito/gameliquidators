@@ -14,66 +14,14 @@ $doc_root = '/gameliquidators';
 
 			<li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				  Productos
+				  PS4
 				</a>
-				<div class="dropdown-menu mega-menu" aria-labelledby="navbarDropdown">
-					<div class="row">
-						<div class="col-lg-4 col-md-4">
-							<ul>
-								<li><b>PS4</b></li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=ps4">Juegos</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=ps4">Consolas</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accesorio&platform=ps4">Accesorios</a>
-								</li>
-							</ul>
-							<hr>
-							<ul>
-								<li><b>PS3</b></li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=ps3">Juegos</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=ps3">Consolas</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accessorio&platform=ps3">Accesorios</a>
-								</li>
-							</ul>
-							<hr class="mega-menu-hr" style="display: none">
-						</div>
-						<div class="col-lg-4 col-md-4">
-							<ul>
-								<li><b>XBOX ONE</b></li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=xbox%20one">Juegos</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=xbox%20one">Consolas</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accessorio&platform=xbox%20one">Accesorios</a>
-								</li>
-							</ul>
-							<hr>
-							<ul>
-								<li><b>XBOX 360</b></li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=xbox%20360">Juegos</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=xbox%20360">Consolas</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accessorio&platform=xbox%20360">Accesorios</a>
-								</li>
-							</ul>
-						</div>
-					</div>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=videojuego&platform=ps4">Juegos</a>
+					<!-- <div class="dropdown-divider"></div> -->
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=consola&platform=ps4">Consolas</a>
+					<!-- <div class="dropdown-divider"></div> -->
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=accesorio&platform=ps4">Accesorios</a>
 				</div>
 			</li>
 			<li class="nav-item dropdown">
@@ -86,7 +34,31 @@ $doc_root = '/gameliquidators';
 					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=consola&platform=ps3">Consolas</a>
 					<!-- <div class="dropdown-divider"></div> -->
 					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=accessorio&platform=ps3">Accesorios</a>
+				</div>
+			</li>
 
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				  XBOX ONE
+				</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=videojuego&platform=xbox%20one">Juegos</a>
+					<!-- <div class="dropdown-divider"></div> -->
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=consola&platform=xbox%20one">Consolas</a>
+					<!-- <div class="dropdown-divider"></div> -->
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=accessorio&platform=xbox%20one">Accesorios</a>
+				</div>
+			</li>
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				  XBOX 360
+				</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=videojuego&platform=xbox%20360">Juegos</a>
+					<!-- <div class="dropdown-divider"></div> -->
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=consola&platform=xbox%20360">Consolas</a>
+					<!-- <div class="dropdown-divider"></div> -->
+					<a class="dropdown-item" href="<?php echo $doc_root ?>/products?type=accessorio&platform=xbox%20360">Accesorios</a>
 				</div>
 			</li>
 			<?php

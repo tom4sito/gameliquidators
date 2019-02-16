@@ -1,94 +1,4 @@
-<?php session_start(); ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-	<title>main page</title>
-	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
-	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/jquery-ui.min.css">
-	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">
-	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/all.min.css">
-
-<style type="text/css">
-	body{
-	    font-family: Arail, sans-serif;
-	}
-	/* Formatting search box */
-	.search-box-reporte{
-	    width: 300px;
-	    position: relative;
-	    display: inline-block;
-	    font-size: 14px;
-	}
-	.search-box-reporte input[type="text"]{
-	    height: 32px;
-	    padding: 5px 10px;
-	    border: 1px solid #CCCCCC;
-	    font-size: 14px;
-	}
-	.result-reporte{
-	    position: absolute;        
-	    z-index: 999;
-	    /*top: 100%;*/
-	    left: 0;
-	    background-color: #fff;
-	}
-	.search-box-reporte input[type="text"], .result-reporte{
-	    width: 100%;
-	    box-sizing: border-box;
-	}
-	/* Formatting result items */
-	.result-reporte p{
-	    margin: 0;
-	    padding: 7px 10px;
-	    border: 1px solid #CCCCCC;
-	    border-top: none;
-	    cursor: pointer;
-	}
-	.result-reporte p:hover{
-	    background: #f2f2f2;
-	}
-
-	.delete-product {
-	    color: #ee4338;
-	    cursor: pointer;
-	    font-size: 20px;
-	}
-
-	/*---------------------*/
-	.search-box-float{
-		overflow: hidden;
-		padding-right: .5em;
-	}
-	#producttype{
-		float: right;
-	}
-
-	.rep-prod-img img{
-		width: 101px;
-		height: 124px;
-	}
-	.prod-info{
-		margin-bottom: 6px;
-	}
-	.prod-info input[type=number]{
-		width: 35%;
-	}
-	/*-------status styling-----------*/
-	.warning{
-		/*background-color: red;*/
-		border-color: red;
-	}
-
-	/*font awesome icons---------------*/
-	.fa-trash {
-	    margin-left: 6px;
-	    vertical-align: 0px;
-	}
-</style>
-</head>
-<body>
 <?php
 $db_connect = $_SERVER['DOCUMENT_ROOT'].'/gameliquidators/includes/db_connect.php';
 
@@ -181,7 +91,7 @@ function checkEmptyFields($product_counter, $numberOfProducts){
 	<h1>Crear Reporte de Ventas</h1>
 	<h5>Encuentra el producto para agregar al reporte</h5>
 	<div class="row">
-		<div class="search-box-reporte col-12 col-md-6">
+		<div class="search-box col-12 col-md-6">
 
 	<!-- 		<button class="btn btn-danger" id="producttype" class="">buscar</button>-->
 			<select id="producttype" >
@@ -194,7 +104,7 @@ function checkEmptyFields($product_counter, $numberOfProducts){
 				<input class="search-box-float" cur_prod_id="" type="text" autocomplete="off" placeholder="Search country..." />
 			</div>
 			
-			<div class="result-reporte" id="result-reporte"></div>
+			<div class="result" id="result"></div>
 		</div>
 		<div class="added-products-panel col-12 col-md-6">
 
@@ -233,11 +143,11 @@ function checkEmptyFields($product_counter, $numberOfProducts){
 <script type="text/javascript">
 $(document).ready(function(){
 	// dynamic search by typing
-    $('.search-box-reporte input[type="text"]').on("keyup input", function(){
+    $('.search-box input[type="text"]').on("keyup input", function(){
         /* Get input value on change */
         var inputVal = $(this).val();
         var producttype = $("#producttype").val();
-        var resultDropdown = $("#result-reporte");
+        var resultDropdown = $("#result");
         console.log(producttype);
         if(inputVal.length){
             $.get("backend-search.php", {term: inputVal, type:producttype}).done(function(data){
@@ -251,7 +161,7 @@ $(document).ready(function(){
 
     
     // Set search input value on click of result item
-    $(document).on("click", ".result-reporte p", function(){
+    $(document).on("click", ".result p", function(){
         var product_image = $(this).find("img")[0];
         var product_info =  $(this).find("p").prevObject;
         var product_name = $(product_info).attr('product_name');
@@ -277,7 +187,7 @@ $(document).ready(function(){
         product_row +=    "</div>";
 
         $("#added-products").append($(product_row));
-        $(this).parent(".result-reporte").empty();
+        $(this).parent(".result").empty();
     });
 
 });
@@ -353,5 +263,3 @@ $('#saleReportForm').on('submit', function(event){
 });
 </script>
 
-</body>
-</html>

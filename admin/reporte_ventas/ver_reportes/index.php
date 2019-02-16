@@ -31,6 +31,9 @@
 		.content-show{
 			display: block;
 		}
+		.aproval-btn, .edit-btn{
+			cursor: pointer;
+		}
 	</style>
 </head>
 <body>
@@ -45,16 +48,17 @@ function renderReportRows($connection, $numOfRows){
 	if(mysqli_num_rows($result) > 0){
 		while($row = mysqli_fetch_assoc($result)) {
 			echo "<div class='row report-body report-row'>";
-			// echo	"<div class='col-md-2'>";
-			// echo 		$row['id'];
-			// echo	"</div>";
-			echo	"<div class='col-md-6'>";
-			echo 		"<span class='show-report-btn'>".$row['created_at']."</span>";
+			echo 	"<div class='col-12'>";
+			echo    	"<div class='row'>";
+			echo			"<div class='col-md-6'>";
+			echo 				"<span class='show-report-btn'>".$row['created_at']."</span>";
+			echo 			"</div>";
+			echo			"<div class='col-md-6'>";
+			echo 				$row['status'];
+			echo 			"</div>";
+			echo 		"</div>";
 			echo 	"</div>";
-			echo	"<div class='col-md-6'>";
-			echo 		$row['status'];
-			echo 	"</div>";
-			echo 	"<div class='report-content content-hidden' report-id='{$row['id']}'>";
+			echo 	"<div class='row report-content content-hidden' report-id='{$row['id']}'>";
 			echo 	"</div>";
 			echo "</div>";
 		}
@@ -64,9 +68,37 @@ function renderReportRows($connection, $numOfRows){
 	}
 }
 
-function renderReportInfo($connection){
+function renderReportRows2($connection, $numOfRows){
+	$sql = "SELECT * FROM sale_report ORDER by created_at DESC LIMIT $numOfRows";
 
+	$result = mysqli_query($connection, $sql);
+	if(mysqli_num_rows($result) > 0){
+		while($row = mysqli_fetch_assoc($result)) {
+			echo "<div class='row'>";
+			echo 	"<div class='col-md-12 col-lg-12 report-row'>";
+			echo    	"<div class='row fecha'>";
+			echo			"<div class='col-6 col-sm-6 col-md-6 col-lg-6'>";
+			echo 				"<span class='show-report-btn'>".$row['created_at']."</span>";
+			echo 			"</div>";
+			echo			"<div class='col-6 col-sm-6 col-md-6 col-lg-6'>";
+			echo 				$row['status'];
+			echo 			"</div>";
+			echo 		"</div>";
+			echo 		"<div class='products-container report-show content-hidden' report-id='{$row['id']}' report-status='{$row['status']}'>";
+			echo 		"</div>";
+			echo 	"</div>";
+			echo "</div>";
+		}
+	} 
+	else {
+		echo "0 results";
+	}
 }
+
+function rendeReportInfo($connection, $reportId){
+	$reportInfoSql = "SELECT * ";
+}
+
 ?>
 
 
@@ -74,20 +106,20 @@ function renderReportInfo($connection){
 <?php include $_SERVER['DOCUMENT_ROOT'].'/gameliquidators/includes/navbar.php'; ?>
 <h1>Ver Reportes de Ventas</h1>
 
-<div id="reports_container">
-	<div class="row report-head report-row">
-		<div class="col-md-2">
-			ID
+<div class="main">
+	<div class="reports-main-container">
+		<div class="row">
+			<div class="col-md-12 col-lg-12">
+				<div class="row">
+					<div class="col-md-6 col-lg-6">fecha</div>
+					<div class="col-md-6 col-lg-6">estatus</div>
+				</div>
+			</div>
 		</div>
-		<div class="col-md-5">
-			Fecha
-		</div>
-		<div class="col-md-5">
-			Status
+		<div class="report-content">
+			<?php renderReportRows2($conn, 5); ?>
 		</div>
 	</div>
-
-	<?php renderReportRows($conn, 5); ?>
 </div>
 
 </div>
@@ -98,28 +130,63 @@ function renderReportInfo($connection){
 <script type="text/javascript" src="/gameliquidators/js/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/all.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/datepicker-es.js"></script>
+<script type="text/javascript" src="/gameliquidators/js/basic-search.js"></script>
 
 <script type="text/javascript">
 var lastOpenReport = "";
 $('.show-report-btn').on('click', function(e){
+
 	$(lastOpenReport).empty();
-	$(lastOpenReport).toggleClass('content-hidden');		
-	$(this).parent().siblings().closest('.report-content').toggleClass('content-hidden');
-	lastOpenReport = $(this).parent().siblings().closest('.report-content');
-	// console.log($(this).parent().siblings().closest('.report-content').attr('report-id'));
-	getReportInfo($(this).parent().siblings().closest('.report-content').attr('report-id'), $(this).parent().siblings().closest('.report-content'));
+	$(lastOpenReport).toggleClass('content-hidden');
+	var currentReportContent = $(this).parent().parent().siblings().closest('.products-container');
+	console.log(currentReportContent);
+	$report_id = currentReportContent.attr('report-id');
+	$report_status = currentReportContent.attr('report-status');
+	// console.log($report_status);
+	currentReportContent.toggleClass('content-hidden');
+	lastOpenReport = currentReportContent;
+
+	// console.log(currentReportContent.attr('report-id'));
+	getReportInfo($report_id , $report_status, currentReportContent);
 });
 
-function getReportInfo(report_id, returned_obj){
+$(document).on('click', '.aproval-btn', function(e){
+	var reportid = $(this).attr('prod-id');
+	var singleReport = $(this);
+
+	// console.log(reportid);
+	approveReport(reportid, singleReport);
+});
+
+function getReportInfo(report_id, report_status ,returned_obj){
 	$.ajax({
-		url: "reportinfo.php",
-		method:"GET",
-		data: "reportid=" + report_id,
+		url: "reportinfo2.php",
+		method:"POST",
+		// method:"GET",
+		// data: "reportid=" + report_id,
+		data: {'reportid': report_id, 'reportstatus': report_status},
+		dataType:"text",
+		success:function(data){
+			// console.log(data);
+			console.log("ajax successful");
+			$(returned_obj).append(data);
+		}
+	});
+}
+
+function approveReport(report_id, reportToAprov){
+	var reportid = {"reportid": report_id};
+	// console.log(reportToAprov);
+	$.ajax({
+		url: "approvereport.php",
+		method:"POST",
+		data: {'data': reportid},
 		dataType:"text",
 		success:function(data){
 			console.log(data);
-			console.log("ajax successful");
-			$(returned_obj).append(data);
+			console.log("ajax successful: approved report...");
+			console.log(reportToAprov);
+			$(reportToAprov).remove();
 		}
 	});
 }

@@ -4,7 +4,9 @@ $db_connect = $_SERVER['DOCUMENT_ROOT'].'/gameliquidators/includes/db_connect.ph
 
 require $db_connect;
 
-$reportId = $_GET["reportid"];
+// $reportId = $_GET["reportid"];
+$reportId = $_POST["reportid"];
+$reportStatus = $_POST["reportstatus"];
 
 $sql = "SELECT * FROM product_in_report WHERE report_id = '$reportId' ";
 
@@ -12,6 +14,7 @@ $result = mysqli_query($conn, $sql);
 if(mysqli_num_rows($result) > 0){
 	// echo "<div class='col-md-12'>";
 	$total = 0;
+	$prod_id = "";
 	echo "<div class='row product-row'>";
 	echo 	"<div class='col-md-3 col-lg-3'>producto</div>";
 	echo 	"<div class='col-md-3 col-lg-3'>precio</div>";
@@ -20,6 +23,7 @@ if(mysqli_num_rows($result) > 0){
 	echo 	"<div class='col-md-2 col-lg-2'>subtotal</div>";
 	echo "</div>";
 	while($row = mysqli_fetch_assoc($result)) {
+		$prod_id = $row['product_id'];
 		$prod_sql = "SELECT `title`, `platform` FROM products WHERE id = '{$row['product_id']}' ";
 		$product_result = mysqli_query($conn, $prod_sql);
 
@@ -57,8 +61,10 @@ if(mysqli_num_rows($result) > 0){
 	echo 	"<div class='row total-row'>";
 	echo 		"<p>total: " .$total."</p>";
 	echo 		"<p>";
-	echo 			"<button id='approvalBtn' class='aproval-btn'>aprobar</button>";
-	echo 			"<button id='approvalBtn' class='aproval-btn'>editar</button>";
+	if($reportStatus == "pendiente"){
+		echo 		"<span class='aproval-btn' prod-id='$reportId'>aprobar </span>";
+	}
+	echo 			"<span class='edit-btn'> <a href='editar?reportid={$reportId}'> editar </a></span>";
 	echo 		"</p>";
 	echo 	"</div>";
 	// echo "</div>";

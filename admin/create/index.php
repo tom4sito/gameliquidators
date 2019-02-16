@@ -99,7 +99,8 @@ $includes_dir = $_SERVER['DOCUMENT_ROOT'].'/gameliquidators/includes/';
 
 <script type="text/javascript" src="/gameliquidators/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/bootstrap.min.js"></script>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script> -->
+<script type="text/javascript" src="/gameliquidators/js/basic-search.js"></script>
+
 <script type="text/javascript">
 $('#product_type').change(function() {
 	var product_type = $('#product_type').val();
