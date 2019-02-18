@@ -42,7 +42,7 @@ if(isset($_POST['login'])){
 	<style type="text/css"></style>
 </head>
 <body>
-<div>
+<div class="super-container">
 <?php include($includes_dir."navbar.php"); ?>
 <form action="" method="post">
 	<label>usuario</label>

@@ -108,7 +108,7 @@ $doc_root = '/gameliquidators';
 				echo 	"</div>";
 				echo "</li>";
 
-				echo "<li class='nav-item'>";
+				echo "<li class='nav-item search-box-container'>";
 				echo 	"<form id='searchform' class='form-inline my-2 my-lg-0' method='post' action='{$doc_root}/searches/basic-search.php'>";
 				echo 		"<input class='form-control mr-sm-2 search-box' type='search' placeholder='busqueda rapida' aria-label='Search' name='basic-search-inp' autocomplete='off'>";
 				echo 	"<input id='search-button' type='submit' value=''>";
@@ -117,9 +117,9 @@ $doc_root = '/gameliquidators';
 				echo 	"<div class='result' id='result'></div>";
 				echo "</li>";
 
-				echo "<li class='nav-item'>";
-				echo 	"<a class='nav-link disabled' href='{$doc_root}/logout'>logout</a>";
-				echo "</li>";
+				// echo "<li class='nav-item'>";
+				// echo 	"<a class='nav-link disabled' href='{$doc_root}/logout'>logout</a>";
+				// echo "</li>";
 			}
 
 			if(!isset($_SESSION['username'])){
@@ -132,12 +132,29 @@ $doc_root = '/gameliquidators';
 				echo 	"<div class='result' id='result'></div>";
 				echo "</li>";
 
-				echo "<li class='nav-item'>";
-				echo 	"<a class='nav-link disabled' href='{$doc_root}/login'>login</a>";
-				echo "</li>";
+				// echo "<li class='nav-item'>";
+				// echo 	"<a class='nav-link disabled' href='{$doc_root}/login'>login</a>";
+				// echo "</li>";
 			}
 			?>
 		</ul>
+		<?php
+			if(isset($_SESSION['username'])){
+				echo "<ul class='navbar-nav'>";
+				echo 	"<li class='nav-item'>";
+				echo 		"<a class='nav-link disabled' href='{$doc_root}/logout'>logout</a>";
+				echo 	"</li>";
+				echo "</ul>";
+			}
+			if(!isset($_SESSION['username'])){
+				echo "<ul class='navbar-nav'>";
+				echo 	"<li class='nav-item'>";
+				echo 		"<a class='nav-link disabled' href='{$doc_root}/login'>login</a>";
+				echo 	"</li>";
+				echo "</ul>";
+			}
+		?>
+
 
 		</div>
 	</nav>

@@ -54,7 +54,7 @@
 	</style>
 </head>
 <body>
-<div>
+<div class="super-container">
 	<?php include 'includes/navbar.php'; ?>
 <!-- 	<div class="result" id="result"></div> -->
 	<?php include 'includes/carousel.php'; ?>
