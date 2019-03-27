@@ -27,7 +27,8 @@ if(isset($_REQUEST["term"])){
                 while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)){
                     $sql_image = "SELECT image_name 
                     FROM images_table 
-                    WHERE product_id = '{$row['id']}' ";
+                    WHERE product_id = '{$row['id']}' 
+                    AND image_name LIKE '%_thumb1%' ";
 
                     // echo $sql_image;
                     $result_img = mysqli_query($conn, $sql_image);
@@ -48,7 +49,7 @@ if(isset($_REQUEST["term"])){
                     else{
                         // echo "<p productid='{$row['id']}'> {$row['platform']}: {$row['title']}</p>";
                             echo "<p productid='{$row['id']}' platform='{$row['platform']}' product_name='{$row['title']}'>";
-                            echo "<img src='https://blog.springshare.com/wp-content/uploads/2010/02/nc-md.gif'  width='57' height='71' class='img-float'>";
+                            echo "<img src='{$url}unavailable_thumb.jpg'  width='57' height='71' class='img-float'>";
                             echo "<span class='no-wrap'>{$row['platform']}: {$row['title']}</span></p>"; 
 
                     }

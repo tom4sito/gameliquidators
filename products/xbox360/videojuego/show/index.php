@@ -3,6 +3,7 @@ session_start();
 $doc_root = $_SERVER['DOCUMENT_ROOT']; 
 $includes_dir = $doc_root.'/gameliquidators/includes/';
 require $includes_dir.'db_connect.php';
+require $includes_dir.'product_template.php';
 
 if(isset($_SESSION['username'])){
     // echo "session started username: ".$_SESSION['username'];
@@ -13,10 +14,11 @@ if(isset($_SESSION['username'])){
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>main page</title>
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">
-	<style type="text/css">
+    <style type="text/css">
         .nav-tree-container{
             margin-top: 20px;
             margin-bottom: 20px;
@@ -196,80 +198,17 @@ if(isset($_SESSION['username'])){
 <div class="main">
     <div class="row container-fluid nav-tree-container">
         <div class="col-12 nav-tree d-none d-sm-block">
-            <a href="">PS4</a><span class="nav-tree-carret"> / </span>
-            <a href="">Videojuegos</a><span class="nav-tree-carret"> / </span>
-            <a href="">Deportes</a><span class="nav-tree-carret"> / </span>
-            <a href="">FIFA 19</a>
+            <?php createNavTree($conn, $_GET['id'], $doc_root) ?>
         </div>        
     </div>
     <div class="product-main-container row">
         <div class="col-lg-6 col-md-6 col-sm-6 product-left-container">
-            <div class="row product-main-img">
-                <div class="col-lg-12 col-md-12 product-img">
-                    <img src="/images/ps4_fifa19_1.jpg">
-                </div>
-            </div>
-            <div class="row product-thumbs-cont">
-                <div class="col-lg-4 col-md-4 col-sm-4 col-4 product-thumb">
-                    <img src="/images/ps4_fifa19_thumb1.jpg">
-                    <!-- <div class="product-thumb-hr"></div> -->
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-4 product-thumb ">
-                    <img src="/images/ps4_fifa19_thumb3.jpg">
-                    <!-- <div class="product-thumb-hr"></div> -->
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-4 product-thumb product-thumb-sel ">
-                    <img src="/images/ps4_fifa19_thumb2.jpg">
-                    <!-- <div class="product-thumb-sel"></div> -->
-                </div>
-            </div>
+            <?php createLeftContainer($conn, $_GET['id']); ?>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6 product-right-container">
             <div class="row container product-right-col">
                 <div class="col-lg-12 col-md-12">
-                    <div class="product-title">
-                        <span class="product-platform-head">(Play Station 4)</span> Call of Duty Black Ops 5
-                    </div>
-                    <div><span class="product-maker">Fabricante:</span> Electronic Arts</div>
-                    <div><span class="product-genre">Generos:</span> Deportes, futbol, fifa</div>
-                    <!-- <hr> -->
-                    <div class="row stock-row">
-                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 price-new-col">
-                            <div class="price-in-div">
-                                <h2 class="al-ri">Nuevo</h2>
-                                <div class="al-ri">$120.000.000</div>
-                                <h4 class="al-ri">2 disponibles</h4>
-                            </div>
-
-                        </div>
-                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 price-old-col">
-                            <div class="price-in-div">
-                                <h2 class="al-ri">Usado</h2>
-                                <div class="al-ri">$90.000</div>
-                                <h4 class="al-ri">agotado</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row delivery-container">
-                        <div class="col-lg-12 col-md-12 delivery-biz-col">
-                            <div class="business-info">
-                                <div>Envio Gratis a Cualquier Parte de Bogota</div>
-                                <div>Envio a cualquier otra parte de colombia solo $5.000</div>
-                            </div>
-                            <div class="business-info">
-                                <div>Contactanos para acordar el metodo de pago y envio.</div>
-                                <div>Nuetro numero de contacto: 310-648-7741</div>
-                                <div>Nuestro email: gameliquidators@outlook.com</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- <hr> -->
-
-                    <!-- <div>Nuevo: $120.000 - 2 Disponibles</div> -->
-                    <!-- <div>Usado: $90.000 - Agotado</div> -->
-                    <!-- <div>$120.000</div> -->
-                    <!-- <div>Generos: Futbol, Deportes</div> -->
+                    <?php createRightContainer($conn, $_GET['id']); ?>
                 </div>
             </div>
         </div>
@@ -279,14 +218,11 @@ if(isset($_SESSION['username'])){
             <div class="description-header-div">
                 <h3>Descripcion</h3>
             </div>
-            <div class="description-txt-div">
-             Destiny 2 es una secuela directa del videojuego de acción en primera persona de Bungie distribuido por Activision. La historia de este episodio amplía el universo de fantasía de la entrega original del 2014 al situar su propuesta shooter tras el ataque a la última ciudad de la Tierra a manos de Ghaul, el comandante de la Legión Roja de los cabal. La Vanguardia, formada por el cazador exo Cayde-6, la hechicera humana Ikora Rey y el titán insomne Zavala, pretende reunir a los guardianes para luchar contra la Oscuridad y recuperar al Viajero y su hogar tras caer la Torre y buena parte del esquema que conocíamos. Después de ser el elemento argumental uno de los puntos más criticados del Destiny original de 2014, en el estudio americano no quieren dormirse en los laureles y buscan que, en esta ocasión, la fuerte presencia de cinemáticas y un hilo de guion mucho más trabajado sean elementos que le doten de fortaleza y de interés a un shooter que, por lo demás, tiene impecables mecánicas para los tiroteos. 
-        </div>
+            <div class="description-txt-div"><?php createDescription($conn, $_GET['id']); ?></div>
         </div>
     </div>
 </div>
 <?php include($includes_dir."footer.php"); ?>
-
 </div>
 
 

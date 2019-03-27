@@ -20,7 +20,7 @@ $includes_dir = $_SERVER['DOCUMENT_ROOT'].'/gameliquidators/includes/';
 				<select id="product_type" name="product_type">
 					<option>Videojuego</option>
 					<option>Consola</option>
-					<option>Accessorio</option>
+					<option>Accesorio</option>
 				</select>
 			</div>
 			<div id="console_mac_id" class="no-display test-class">

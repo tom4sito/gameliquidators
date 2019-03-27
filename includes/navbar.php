@@ -4,7 +4,7 @@ $doc_root = '/gameliquidators';
 ?>
 <div class="menu">
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<a class="navbar-brand" href="<?php echo $doc_root ?>"><img src="/gameliquidators/images/gameliquidators-logo.jpg" width="180px"></a>
+		<a class="navbar-brand" href="<?php echo $doc_root ?>"><img src="/images/gameliquidators-logo.png" width="180px"></a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		<span class="navbar-toggler-icon"></span>
 		</button>
@@ -20,56 +20,56 @@ $doc_root = '/gameliquidators';
 					<div class="row">
 						<div class="col-lg-4 col-md-4">
 							<ul>
-								<li><b>PS4</b></li>
+								<li><b><a href="<?php echo $doc_root ?>/products/ps4">PS4</a></b></li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=ps4">Juegos</a>
+									<a class="" href="<?php echo $doc_root ?>/products/ps4/videojuego">Juegos</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=ps4">Consolas</a>
+									<a class="" href="<?php echo $doc_root ?>/products/ps4/consola">Consolas</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accesorio&platform=ps4">Accesorios</a>
+									<a class="" href="<?php echo $doc_root ?>/products/ps4/accesorio">Accesorios</a>
 								</li>
 							</ul>
 							<hr>
 							<ul>
-								<li><b>PS3</b></li>
+								<li><b><a href="<?php echo $doc_root ?>/products/ps3">PS3</a></b></li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=ps3">Juegos</a>
+									<a class="" href="<?php echo $doc_root ?>/products/ps3/videojuego">Juegos</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=ps3">Consolas</a>
+									<a class="" href="<?php echo $doc_root ?>/products/ps3/consola">Consolas</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accessorio&platform=ps3">Accesorios</a>
+									<a class="" href="<?php echo $doc_root ?>/products/ps3/accesorio">Accesorios</a>
 								</li>
 							</ul>
 							<hr class="mega-menu-hr" style="display: none">
 						</div>
 						<div class="col-lg-4 col-md-4">
 							<ul>
-								<li><b>XBOX ONE</b></li>
+								<li><b><a href="<?php echo $doc_root ?>/products/xboxone">XBOX ONE</a></b></li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=xbox%20one">Juegos</a>
+									<a class="" href="<?php echo $doc_root ?>/products/xboxone/videojuego">Juegos</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=xbox%20one">Consolas</a>
+									<a class="" href="<?php echo $doc_root ?>/products/xboxone/consola">Consolas</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accessorio&platform=xbox%20one">Accesorios</a>
+									<a class="" href="<?php echo $doc_root ?>/products/xboxone/accesorio">Accesorios</a>
 								</li>
 							</ul>
 							<hr>
 							<ul>
-								<li><b>XBOX 360</b></li>
+								<li><b><a href="<?php echo $doc_root ?>/products/xbox360">XBOX 360</a></b></li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=videojuego&platform=xbox%20360">Juegos</a>
+									<a class="" href="<?php echo $doc_root ?>/products/xbox360/videojuego">Juegos</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=consola&platform=xbox%20360">Consolas</a>
+									<a class="" href="<?php echo $doc_root ?>/products/xbox360/consola">Consolas</a>
 								</li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products?type=accessorio&platform=xbox%20360">Accesorios</a>
+									<a class="" href="<?php echo $doc_root ?>/products/xbox360/accesorio">Accesorios</a>
 								</li>
 							</ul>
 						</div>

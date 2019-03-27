@@ -2,6 +2,8 @@
     /*margin-left: 5%;*/
     /*margin-right: 5%;*/
     max-width:1280px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .carousel {
@@ -88,5 +90,11 @@
     .mega-menu-hr{
         display: block !important;
     }
+}
+
+/*------------------footer-----------------------*/
+.footer-container{
+    margin-top: 40px;
+    background-color: yellow;
 }
 
