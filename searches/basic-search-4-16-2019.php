@@ -155,40 +155,34 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 					<div class="filter-category-title">
 						<h6>Platform</h6>
 					</div>
-					<div class="filterContainer" id="platformFilterContainer">
-						<?php 
-						if(isset($postInput) && !empty($postInput)){
-							echo renderPlatformFilter($conn, $postInput, "platform"); 
-						}
-						?>
-					</div>
+					<?php 
+					if(isset($postInput) && !empty($postInput)){
+						echo renderPlatformFilter($conn, $postInput, "platform"); 
+					}
+					?>
 				</div>
 				<hr>
 				<div class="filter-category">
 					<div class="filter-category-price">
 						<h6>Price</h6>
 					</div>
-					<div class="filterContainer" id="priceFilterContainer">
-						<?php 
-						if(isset($postInput) && !empty($postInput)){
-							echo renderPriceFilter($conn, $postInput);
-						}
-						?>
-					</div>
+					<?php 
+					if(isset($postInput) && !empty($postInput)){
+						echo renderPriceFilter($conn, $postInput);
+					}
+					?>
 				</div>
 				<hr>
 				<div class="filter-category">
 					<div class="filter-category-condition">
 						<h6>Condition</h6>
 					</div>
-					<div class="filterContainer">
-						<?php
-						if(isset($postInput) && !empty($postInput)){ 
-							echo renderConditionFilter($conn, $postInput, "quantity_new");
-							echo renderConditionFilter($conn, $postInput, "quantity_used");
-						}
-						?>
-					</div>
+					<?php
+					if(isset($postInput) && !empty($postInput)){ 
+						echo renderConditionFilter($conn, $postInput, "quantity_new");
+						echo renderConditionFilter($conn, $postInput, "quantity_used");
+					}
+					?>
 				</div>
 			</form>
 		</div>
@@ -231,8 +225,7 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 		"pagination_offset": 0
 	};
 
-	$(document).on("change", ".grab-filter", function(){
-		console.log("you click grabfilter!!!!!");
+	$('.grab-filter').on('change', function(){
 		extra = $(this).attr('name').split("|");
 
 		if(extra[0].includes("platform")){
@@ -295,19 +288,25 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 				// console.log(JSON.stringify(data));
 				// console.log(data.products);
 				console.log(data);
-				$(".basic-seach-cont").empty();
-				$(".basic-seach-cont").prepend(genFilterProductsHtml(data));
-				$(".pagination").empty();
-				$(".pagination").prepend(genPagination(data['num_of_products']));
-				if(extra[0] != "platform"){
-					$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
-				}
-				if(extra[0] != "pricerange"){
-					$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count));
-				}
+				$( ".basic-seach-cont" ).empty();
+				$( ".basic-seach-cont" ).prepend(genFilterProductsHtml(data));
+				$( ".pagination" ).empty();
+				$( ".pagination" ).prepend(genPagination(data['num_of_products']));
 
-				// filterUpdate = renderPriceFilter(data.price_new_count, data.price_used_count);
-				// platformfilterUpdt(data);
+				$.ajax({
+					url: "filters-update.php",
+					method:"POST",
+					dataType:"json",
+					contentType:"application/json; charset=utf-8",
+					data: JSON.stringify("hello:'test'"),
+					success:function(data){
+						console.log(data);
+					},
+					error: function (request, status, error) {
+					    alert(error);
+					}
+				});
+
 				// $("#data-store").data("title-query", data.filters);
 				// console.log($("#data-store").data("title-query"));
 			},
@@ -336,7 +335,6 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 				$( ".basic-seach-cont" ).prepend(genFilterProductsHtml(data));
 				$( ".pagination" ).empty();
 				$( ".pagination" ).prepend(genPagination(data['num_of_products']));
-				$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
 				// $("#data-store").data("title-query", data.filters);
 				// console.log($("#data-store").data("title-query"));
 			},
@@ -349,11 +347,8 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 
 	function genFilterProductsHtml(jsonProducts){
 		product_html = "";
-		if (typeof jsonProducts.products === "undefined"){
-			return "ningun producto disponible!!!";
-		}
-
 		jsonProducts.products.forEach(function(productsData){
+
 			product_html += "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
 			product_html += 	"<div class='product-thumb-body'>";
 			product_html +=    	"<div class='row'>";
@@ -391,110 +386,8 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 		return paginationHtml;
 	}
 
-	function platformfilterUpdt(platformCount, queryObj){
-		platformHTML = "";
-		var platformObj = {};
-		platformCount.forEach(function(platform){
-			if(platform in platformObj){
-				platformObj[platform] += 1;
-			}
-			else{
-				platformObj[platform] = 1;
-			}
-		});
+	// console.log($("#data-store").data("title-query"));
 
-		for (var key in platformObj) {
-			checked = "";
-			if(queryObj.includes(key)){
-				checked = "checked";
-			}
-		    if (platformObj.hasOwnProperty(key)) {
-		        platformHTML += "<div>";
-		        platformHTML += 	"<input type='checkbox' name='platform|" + key + "' value='" + platformObj[key] + "'class='platform-filter grab-filter' filter-name='" + key + "' " + checked + ">";
-		        platformHTML += 	"<span> "+ key +" (" + platformObj[key] + ")</span>";
-		        platformHTML += "</div>"
-		    }
-		}
-		return platformHTML;
-	}
-
-	function renderPriceFilter(newPriceArr, usedPriceArr){
-		rangeHtml = "";
-		prevRange = 0;
-		currentRange = 0;
-
-		fullPriceRangeArrStr = newPriceArr.concat(usedPriceArr);
-		fullPriceRangeArr = fullPriceRangeArrStr.map(function (x) { 
-		  return parseInt(x, 10); 
-		});
-
-		if(fullPriceRangeArr.length > 0){
-			fullPriceRangeArr = fullPriceRangeArrStr.sort((a, b) => a - b);
-			rangeMin = fullPriceRangeArr[0];
-			rangeMax = fullPriceRangeArr[fullPriceRangeArr.length - 1];
-			ranges = createRangeArr(rangeMin, rangeMax);
-
-			ranges.ranges.forEach(function(range){
-				priceHitCounter = 0;
-				fullPriceRangeArr.forEach(function(realPrice){
-					realPrice = parseInt(realPrice);
-					if((realPrice > range[0]) && (realPrice < range[1])){
-						priceHitCounter += 1;
-						console.log("hit");
-					}
-				});
-				if(priceHitCounter > 0){
-					rangeHtml += "<div>";
-					rangeHtml += 	`<input type='checkbox' name='pricerange|${range[0]}|${range[1]}' value='${range[1]}' class='platform-filter grab-filter' filter-name='${range[0]}-${range[1]}'>`;
-					rangeHtml += 	`<span> \$ ${range[0]} - \$ ${range[1]} (${priceHitCounter})</span>`;
-					rangeHtml += "</div>";
-				}
-			});
-			return rangeHtml;
-			// console.log("min: " + rangeMin);
-			// console.log(ranges);
-			// console.log(rangeMin + " - " + rangeMax);
-		}
-	}
-
-	function createRangeArr(min, max){
-		rangeObj = {"ranges":[]};
-		diff = max - min;
-
-		if(diff <= 100){
-			minFloored = Math.floor(min / 10) * 10;
-			maxCeiled = Math.ceil(max / 10) * 10;
-			pointer = minFloored;
-			current = 0;
-			while(Math.floor((pointer / 10) * 10) <= maxCeiled){
-				rangeObj["ranges"].push([current, pointer]);
-				current = Math.floor((pointer / 10) * 10);
-				pointer += 10;
-			}
-		}
-		else if((diff > 100 ) && (diff <= 250)){
-			maxCeiled = Math.ceil(max / 100) * 100;
-			pointer = 50;
-			current = 0
-			while(pointer < maxCeiled){
-				rangeObj["ranges"].push([current, pointer]);
-				current = pointer;
-				pointer += 50;
-			}
-		}
-		else if(diff > 250 ){
-			minFloored = Math.floor(min / 100) * 100;
-			maxCeiled = Math.ceil(max / 100) * 100;
-			pointer = 100;
-			current = 0;
-			while(pointer <= maxCeiled){
-				rangeObj["ranges"].push([current, pointer]);
-				current = pointer;
-				pointer += 100;
-			}
-		}
-		return rangeObj;
-	}
 
 
 </script>

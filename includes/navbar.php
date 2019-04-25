@@ -109,7 +109,7 @@ $doc_root = '/gameliquidators';
 				echo "</li>";
 
 				echo "<li class='nav-item search-box-container'>";
-				echo 	"<form id='searchform' class='form-inline my-2 my-lg-0' method='post' action='{$doc_root}/searches/basic-search.php'>";
+				echo 	"<form id='searchform' class='form-inline my-2 my-lg-0' method='get' action='{$doc_root}/searches/basic-search.php'>";
 				echo 		"<input class='form-control mr-sm-2 search-box' type='search' placeholder='busqueda rapida' aria-label='Search' name='basic-search-inp' autocomplete='off'>";
 				echo 	"<input id='search-button' type='submit' value=''>";
 				// echo 		"<button class='btn btn-outline-danger my-2 my-sm-0' type='submit'>buscar</button>";
@@ -124,7 +124,7 @@ $doc_root = '/gameliquidators';
 
 			if(!isset($_SESSION['username'])){
 				echo "<li class='nav-item'>";
-				echo 	"<form id='searchform' class='form-inline my-2 my-lg-0' method='post' action='{$doc_root}/searches/basic-search.php'>";
+				echo 	"<form id='searchform' class='form-inline my-2 my-lg-0' method='get' action='{$doc_root}/searches/basic-search.php'>";
 				echo 		"<input class='form-control mr-sm-2 search-box' type='search' placeholder='busqueda rapida' aria-label='Search' name='basic-search-inp' autocomplete='off'>";
 				echo 	"<input id='search-button' type='submit' value=''>";
 				// echo 		"<button class='btn btn-outline-danger my-2 my-sm-0' type='submit'>buscar</button>";

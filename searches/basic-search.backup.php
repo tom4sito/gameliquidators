@@ -23,7 +23,7 @@ function renderPlatformFilter($db, $searchStr, $column){
 
 		foreach ($platform as $key => $value) {
 			$platformHtml .= "<div>";
-			$platformHtml .= 	"<input type='checkbox' name='platform-{$key}' value='{$value}' class='platform-filter'>";
+			$platformHtml .= 	"<input type='checkbox' name='platform-{$key}' value='{$value}' class='platform-filter grab-filter' filter-name='{$key}'>";
 			$platformHtml .= 	"<span> {$key} ({$value})</span>";
 			$platformHtml .= "</div>";
 		}
@@ -53,7 +53,7 @@ function renderConditionFilter($db, $searchStr, $column){
 			}
 		}
 		$conditionHtml .= "<div>";
-		$conditionHtml .= 	"<input type='checkbox' name='condition-filter' value='30'>";
+		$conditionHtml .= 	"<input type='checkbox' name='condition-{$conditionState}' filter-name='{$conditionState}' class='platform-filter grab-filter'>";
 		$conditionHtml .=	"<span> {$conditionState} ({$condition})";
 		$conditionHtml .= "</div>";
 	}
@@ -103,7 +103,7 @@ function renderPriceFilter($db, $searchStr){
 		if($priceCounter > 0){
 			// $rangeHtml .= "<div>{$prevRange} - {$range} ({$priceCounter})</div>";
 			$rangeHtml .= "<div>";
-			$rangeHtml .= 	"<input type='checkbox' name='pricerange-30-40' value='{$range}'>";
+			$rangeHtml .= 	"<input type='checkbox' name='pricerange-{$prevRange}-{$range}' value='{$range}' class='platform-filter grab-filter' filter-name='{$prevRange}-{$range}'>";
 			$rangeHtml .= 	"<span> \${$prevRange} - \${$range} ({$priceCounter})</span>";
 			$rangeHtml .= "</div>";
 
@@ -373,6 +373,7 @@ function renderSeach($db, $searchStr, $column){
 <div class="container-fluid">
 	<div class="row all-products-row">
 		<div class="col-lg-2 col-md-2 filters-col">
+			<div id="data-store" basic-query="<?php echo "basic!|". $_POST['basic-search-inp']?>"></div>
 			<form action="" method="get">
 				<div class="filter-category">
 					<div class="filter-category-title">
@@ -428,10 +429,30 @@ function renderSeach($db, $searchStr, $column){
 <script type="text/javascript" src="/gameliquidators/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/basic-search.js"></script>
 <script type="text/javascript">
-	var selectedFilter = $('.platform-filter').on('change', function(){
-		console.log( $( this ).val() );
-		$( ".basic-seach-cont" ).empty();
+	$("#data-store").data("title-query", $("#data-store").attr("basic-query"));
+
+	$('.platform-filter').on('change', function(){
+
+		$.ajax({
+			url: "refined-search.php",
+			method:"POST",
+			data: {'basic': $('#data-store').data('title-query'),
+					'extra': $(this).attr('name')},
+			dataType:"text",
+			success:function(data){
+				console.log(data);
+			}
+		});
+
+
+		// $( ".basic-seach-cont" ).empty();
+
 	});
+
+	// console.log($("#data-store").data("title-query"));
+
+
+
 </script>
 </body>
 </html>
