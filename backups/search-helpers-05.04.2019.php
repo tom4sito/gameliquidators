@@ -1,63 +1,4 @@
 <?php
-function renderProducs($db, $column, $searchStr){
-	$sql = "SELECT * FROM products WHERE {$column} == '{$searchStr}";
-	$result = mysqli_query($db, $sql);
-	if(mysqli_num_rows($result) > 0){
-		$product_html = "";
-		foreach ($result as $key => $value) {
-
-			$isAvailable = "";
-			$productImg = "";
-			$urlImg = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/images/';
-
-			if($value['quantity_new'] > 0 or $value['quantity_used'] > 0){
-				$isAvailable = "disponible";
-			}
-			else{
-				$isAvailable = "agotado";
-			}
-
-			$img_sql = "SELECT image_name FROM images_table
-						WHERE product_id = {$value['id']}
-						AND image_name LIKE '%_thumb1%' ";
-
-			$img_result = mysqli_query($db, $img_sql);
-			if(mysqli_num_rows($img_result) > 0){
-				$img_row = mysqli_fetch_assoc($img_result);
-				$productImg = $urlImg . $img_row['image_name'];
-			}
-			else{
-				$productImg = $urlImg . "unavailable_thumb.jpg";
-			}
-
-			$product_html .= "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
-			$product_html .= 	"<div class='product-thumb-body'>";
-			$product_html .=    	"<div class='row'>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			$product_html .=				"<img class='product-thumb-img' src='{$productImg}'>";
-			$product_html .=			"</div>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			$product_html .=				"<div class='product-thumb-title'>{$value['title']}</div>";
-			$product_html .=				"<div>plataforma: <span>{$value['platform']}</span></div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_used']}</div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_new']}</div>";
-			$product_html .=				"<div>";
-			$product_html .=					"<span class='thumb-product-stock'>{$isAvailable}</span> | ";
-			$product_html .=					"<span class='thumb-product-studio'>{$value['studio']}</span>";
-			$product_html .=				"</div>";
-			$product_html .=			"</div>";
-			$product_html .=    	"</div>";
-			$product_html .= 	"</div>";
-			$product_html .= "</div>";
-
-		}
-		return $product_html;
-	}
-	else{
-		return "no result or error";
-	}
-}
-
 function renderSeach($db, $searchStr, $column){
 	$result = searchBase($db, $searchStr, $column);
 	if(mysqli_num_rows($result) > 0){
@@ -164,38 +105,11 @@ function renderConditionFilter($db, $searchStr, $column){
 			}
 		}
 		$conditionHtml .= "<div>";
-		$conditionHtml .= 	"<input type='checkbox' name='condition|{$conditionState}' filter-name='{$conditionState}' class='condition-filter grab-filter'>";
+		$conditionHtml .= 	"<input type='checkbox' name='condition|{$conditionState}' filter-name='{$conditionState}' class='platform-filter grab-filter'>";
 		$conditionHtml .=	"<span> {$conditionState} ({$condition})</span>";
 		$conditionHtml .= "</div>";
 	}
 	return $conditionHtml;
-}
-// returns html for product type filter
-function renderProductTypeFilter($db, $searchStr, $column){
-	$productTypeHtml = "";
-	$result = searchBaseForFilter($db, $searchStr, $column);
-	$productType = array();
-
-	if(mysqli_num_rows($result) > 0){
-		foreach ($result as $value) {
-			// echo $key . ": ". $value['platform'] . "<br>";
-			if (array_key_exists($value['product_type'], $productType)){
-				$productType[$value['product_type']] += 1;
-			}
-			else{
-				$productType[$value['product_type']] = 1;
-			}
-		}
-
-		foreach ($productType as $key => $value) {
-			$productTypeHtml .= "<div>";
-			$productTypeHtml .= 	"<input type='checkbox' name='producttype|{$key}' value='{$value}' class='producttype-filter grab-filter' filter-name='{$key}'>";
-			$productTypeHtml .= 	"<span> {$key} ({$value})</span>";
-			$productTypeHtml .= "</div>";
-		}
-
-		return $platformHtml;
-	}
 }
 
 // returns an array with all products prices
@@ -238,7 +152,7 @@ function renderPriceFilter($db, $searchStr){
 			if($priceCounter > 0){
 				// $rangeHtml .= "<div>{$prevRange} - {$range} ({$priceCounter})</div>";
 				$rangeHtml .= "<div>";
-				$rangeHtml .= 	"<input type='checkbox' name='pricerange|{$prevRange}|{$range}' value='{$range}' class='pricerange-filter grab-filter' filter-name='{$prevRange}-{$range}'>";
+				$rangeHtml .= 	"<input type='checkbox' name='pricerange|{$prevRange}|{$range}' value='{$range}' class='platform-filter grab-filter' filter-name='{$prevRange}-{$range}'>";
 				$rangeHtml .= 	"<span> \${$prevRange} - \${$range} ({$priceCounter})</span>";
 				$rangeHtml .= "</div>";
 

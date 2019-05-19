@@ -3,13 +3,8 @@ session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-$doc_root = $_SERVER['DOCUMENT_ROOT']; 
-$includes_dir = $doc_root.'/gameliquidators/includes/';
-include $includes_dir.'db_connect.php';
-require $includes_dir.'search-helpers.php';
-
-define("PRODUCTS_PER_PAGE", 2);
-define("INITIAL_NEXT_OFFSET", 2);
+include '../includes/db_connect.php';
+include 'search-helpers.php';
 
 if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 	$postInput = $_GET['basic-search-inp'];
@@ -109,9 +104,6 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 			font-size: 12px;
 			font-weight: bold;
 		}
-		.selected-page{
-			color: red;
-		}
 
 		@media screen and (max-width: 576px) {
 			.product-thumb-body{
@@ -152,18 +144,6 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 <div>
 <?php include '../includes/navbar.php'; ?>
 </div>
-<div class="sort-bar">
-	Ordenar Por: 
-	<select name="sort-criteria" id="sort-criteria">
-		<option value="" selected disabled hidden>Escoge Criterio de Orden</option>
-		<option value="year-lth">Año: Menor a Mayor</option>
-		<option value="year-htl">Año: Mayor a Menor </option>
-		<option value="price-new-lth">Precio Nuevo: Menor a Mayor</option>
-		<option value="price-new-htl">Precio Nuevo: Mayor a Menor</option>
-		<option value="price-used-lth">Precio Usado: Menor a Mayor</option>
-		<option value="price-used-htl">Precio Usado: Mayor a Menor</option>
-	</select>
-</div>
 <div class="main-container">
 
 <div class="container-fluid">
@@ -201,24 +181,11 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 					<div class="filter-category-condition">
 						<h6>Condition</h6>
 					</div>
-					<div class="filterContainer" id="conditionFilterContainer">
+					<div class="filterContainer">
 						<?php
 						if(isset($postInput) && !empty($postInput)){ 
 							echo renderConditionFilter($conn, $postInput, "quantity_new");
 							echo renderConditionFilter($conn, $postInput, "quantity_used");
-						}
-						?>
-					</div>
-				</div>
-				<hr>
-				<div class="filter-category">
-					<div class="filter-category-producttype">
-						<h6>Tipo de Producto</h6>
-					</div>
-					<div class="filterContainer" id="producttypeFilterContainer">
-						<?php
-						if(isset($postInput) && !empty($postInput)){ 
-							echo renderProductTypeFilter($conn, $postInput, "product_type");
 						}
 						?>
 					</div>
@@ -229,7 +196,7 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 			<div class="row basic-seach-cont" search-term="<?php echo $postInput ?>" >
 				<?php 
 				if(isset($postInput) && !empty($postInput)){
-					echo renderSeach($conn, $postInput, "*", PRODUCTS_PER_PAGE);
+					echo renderSeach($conn, $postInput, "*");
 					echo "<br>";
 				}
 				?>
@@ -238,7 +205,7 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 				<?php
 				if(isset($postInput) && !empty($postInput)){
 					$numOfProducts = searchBaseGetProdCount($conn, $postInput, "id");
-					echo genPagination($numOfProducts, PRODUCTS_PER_PAGE, INITIAL_NEXT_OFFSET); 
+					echo genPagination($numOfProducts, 2); 
 				} 
 				?>
 			</div>
@@ -260,58 +227,14 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 			"pricerange": [],
 			"condition": [],
 			"studio": "",
-			"producttype":[]
 		},
-		"pagination_offset": 0,
-		"products_per_page": 2,
-		"order_by": "",
-		"asc_desc": ""
+		"pagination_offset": 0
 	};
 
-	//sets this va with the results from basic query
-	basicQueryCopy = $.ajax({
-		url: "refined-search3.php",
-		method:"POST",
-		dataType:"json",
-		async: false,
-		contentType:"application/json; charset=utf-8",
-		data: JSON.stringify(filterParameters),
-		success:function(data){
-			return data;
-		},
-		error: function (request, status, error) {
-		    alert(error);
-		}
-	}).responseText;
+	filterParametersCopy = {};
 
-	//stores json from original basic query
-	basicQueryJson = JSON.parse(basicQueryCopy);
-	console.log(basicQueryJson);
-
-	// -----------------------------when filter is checked---------------->
 	$(document).on("change", ".grab-filter", function(){
 		console.log("you click grabfilter!!!!!");
-		filterClass = $(this).prop("classList")[0];
-		filterCategory = filterClass.split("-")[0];
-
-		checkedCheckboxes = $("."+filterClass+":checked").length;
-
-		// if no checkbox on filter category is checked reset to original result
-		if(checkedCheckboxes <= 0){
-			if(filterCategory == "platform"){
-				$("#platformFilterContainer").empty().prepend(platformfilterUpdt(basicQueryJson.platform_count, []));
-			}
-			if(filterCategory == "pricerange"){
-				$("#priceFilterContainer").empty().prepend(renderPriceFilter(basicQueryJson.price_new_count, basicQueryJson.price_used_count));
-			}
-			if(filterCategory == "condition"){
-				$("#conditionFilterContainer").empty().prepend(renderConditionFilter(basicQueryJson.new_count, basicQueryJson.used_count));
-			}
-			if(filterCategory == "producttype"){
-				$("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(basicQueryJson.producttype_count, []));
-			}	
-		}
-
 		extra = $(this).attr('name').split("|");
 
 		if(extra[0].includes("platform")){
@@ -359,51 +282,36 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 				filterParameters["pagination_offset"] = 0;
 			}
 		}
-		else if(extra[0].includes("producttype")){
-			producttypeArr = filterParameters["queries"]["producttype"];
-			if(!producttypeArr.includes(extra[1])){
-				producttypeArr.push(extra[1]);
-				filterParameters["pagination_offset"] = 0;
-			}
-			else{
-				producttypeArr.splice(producttypeArr.indexOf(extra[1]), 1);
-				filterParameters["pagination_offset"] = 0;
-			}
-		}
+		// console.log(filterParameters);
 
-		if(checkedCheckboxes <= 0){
-			console.log("no checks");
-			filterParameters["queries"][filterCategory] = [];
-		}
+		// console.log(extra);
 		$.ajax({
 			url: "refined-search3.php",
 			method:"POST",
 			dataType:"json",
 			contentType:"application/json; charset=utf-8",
 			data: JSON.stringify(filterParameters),
+			// data: '{"basic":"'+ basic + '", "extra": "' + extra + '"}',
 			success:function(data){
+				// console.log(genFilterProductsHtml(data));
+				// console.log(JSON.stringify(data));
+				// console.log(data.products);
 				console.log(data);
-				// console.log(data.price_new_count);
-				// console.log(data.price_used_count);
 				$(".basic-seach-cont").empty();
 				$(".basic-seach-cont").prepend(genFilterProductsHtml(data));
-
 				$(".pagination").empty();
-				$(".pagination").prepend(genPagination(data, 2));
+				$(".pagination").prepend(genPagination(data['num_of_products']));
 				if(extra[0] != "platform"){
 					$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
 				}
 				if(extra[0] != "pricerange"){
 					$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count));
 				}
-				if(extra[0] != "condition"){
-					console.log("condition new: ");
-					$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries.condition));
-				}
-				if(extra[0] != "producttype"){
-					console.log("product type: ");
-					$("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(data.producttype_count, filterParameters.queries.producttype));
-				}
+
+				// filterUpdate = renderPriceFilter(data.price_new_count, data.price_used_count);
+				// platformfilterUpdt(data);
+				// $("#data-store").data("title-query", data.filters);
+				// console.log($("#data-store").data("title-query"));
 			},
 			error: function (request, status, error) {
 			    alert(error);
@@ -416,6 +324,7 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 	});
 
 	$(document).on("click", ".selectpage", function(){
+		// console.log(filterParameters["pagination_offset"]);
 		filterParameters["pagination_offset"] = $(this).attr("pageoffset");
 		$.ajax({
 			url: "refined-search3.php",
@@ -428,12 +337,8 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 				$( ".basic-seach-cont" ).empty();
 				$( ".basic-seach-cont" ).prepend(genFilterProductsHtml(data));
 				$( ".pagination" ).empty();
-				$( ".pagination" ).prepend(genPagination(data, 2));
-				// $("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
-				// $("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count));
-				// $("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count));
-				// $("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(data.producttype_count, filterParameters.queries.producttype));
-
+				$( ".pagination" ).prepend(genPagination(data['num_of_products']));
+				$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
 				// $("#data-store").data("title-query", data.filters);
 				// console.log($("#data-store").data("title-query"));
 			},
@@ -443,51 +348,6 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 		});
 		console.log(filterParameters);
 	});
-
-	// sort by selected dropdown menu criteria
-	$(document).on("change", "#sort-criteria", function(){
-		sortBy = $(this).val();
-		if(sortBy == "year-lth"){
-			filterParameters["sort_by"] = "release_year";
-			filterParameters["asc_desc"] = "ASC";
-		}
-		else if(sortBy == "year-htl"){
-			filterParameters["sort_by"] = "release_year";
-			filterParameters["asc_desc"] = "DESC";
-		}
-		else if(sortBy == "price-new-lth"){
-			filterParameters["sort_by"] = "price_new";
-			filterParameters["asc_desc"] = "ASC";
-		}
-		else if(sortBy == "price-new-htl"){
-			filterParameters["sort_by"] = "price_new";
-			filterParameters["asc_desc"] = "DESC";
-		}
-		else if(sortBy == "price-used-lth"){
-			filterParameters["sort_by"] = "price_used";
-			filterParameters["asc_desc"] = "ASC";
-		}
-		else if(sortBy == "price-used-htl"){
-			filterParameters["sort_by"] = "price_used";
-			filterParameters["asc_desc"] = "DESC";
-		} 
-
-		$.ajax({
-			url: "refined-search3.php",
-			method:"POST",
-			dataType:"json",
-			contentType:"application/json; charset=utf-8",
-			data: JSON.stringify(filterParameters),
-			success:function(data){
-				console.log(data);
-				$(".basic-seach-cont").empty();
-				$(".basic-seach-cont").prepend(genFilterProductsHtml(data));
-			},
-			error: function (request, status, error) {
-			    alert(error);
-			}
-		});
-	})
 
 	function genFilterProductsHtml(jsonProducts){
 		product_html = "";
@@ -520,43 +380,21 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 		return product_html;
 	}
 
-	function genPagination(pageObj, productsPerPage){
+	function genPagination(totalProducts){
+		numOfPages = Math.ceil(totalProducts/2);
 		paginationHtml = "";
-		if(pageObj['num_of_products'] == undefined){
-			return "";
-		}
-
-		numOfPages = Math.ceil(pageObj['num_of_products']/2);
-		if(numOfPages <= 1){
-			return "";
-		}
-		lastOffSet = (numOfPages - 1) * productsPerPage;
-
-		previousPage = pageObj['prev_page'] >= 0 ? pageObj['prev_page'] : 0;
-		nextPage = pageObj['next_page'] >= lastOffSet ? lastOffSet : pageObj['next_page'];
-		currentPage = pageObj['current_page'];
-		selected = "";
-
-
-		paginationHtml += "<a href='#' class='selectpage pagination-previous' pageoffset='" +previousPage+ "'><span>&laquo; Previo &nbsp;</span></a>";
+		paginationHtml += "<a class='pagination-previous' href=''><span>&laquo; Previo &nbsp;</span></a>";
 		paginationHtml += "<div class='pagination-pages'>";
 		for (var i = 1; i <= numOfPages; i++ ){
-			if(((i - 1) * productsPerPage) == currentPage){
-				selected = " selected-page";
-			}
-			paginationHtml += "<a href='#' class='selectpage "+selected+"' pageoffset='" + (i - 1) * productsPerPage + "'> " + i + " </a>";
-			selected = "";
+			paginationHtml += "<a href='#' class='selectpage' pageoffset='" + (i - 1) * 2 + "'> " + i + " </a>";
 		}
 		paginationHtml += "</div>";
-		paginationHtml += "<a href='#' class='selectpage pagination-next' pageoffset='" +nextPage+ "'><span> &nbsp; Siguiente &raquo;</span></a>";
+		paginationHtml += "<a class='pagination-next' href=''><span> &nbsp; Siguiente &raquo;</span></a>";
 		return paginationHtml;
 	}
 
 	function platformfilterUpdt(platformCount, queryObj){
 		platformHTML = "";
-		if(platformCount == undefined){
-			return platformHTML;
-		}
 		var platformObj = {};
 		platformCount.forEach(function(platform){
 			if(platform in platformObj){
@@ -584,9 +422,6 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 
 	function renderPriceFilter(newPriceArr, usedPriceArr){
 		rangeHtml = "";
-		if(newPriceArr == undefined){
-			return rangeHtml;
-		}
 		prevRange = 0;
 		currentRange = 0;
 
@@ -605,18 +440,21 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 				priceHitCounter = 0;
 				fullPriceRangeArr.forEach(function(realPrice){
 					realPrice = parseInt(realPrice);
-					if((realPrice > range[0]) && (realPrice <= range[1])){
+					if((realPrice >= range[0]) && (realPrice < range[1])){
 						priceHitCounter += 1;
 					}
 				});
 				if(priceHitCounter > 0){
 					rangeHtml += "<div>";
-					rangeHtml += 	`<input type='checkbox' name='pricerange|${range[0]}|${range[1]}' value='${range[1]}' class='pricerange-filter grab-filter' filter-name='${range[0]}-${range[1]}'>`;
+					rangeHtml += 	`<input type='checkbox' name='pricerange|${range[0]}|${range[1]}' value='${range[1]}' class='platform-filter grab-filter' filter-name='${range[0]}-${range[1]}'>`;
 					rangeHtml += 	`<span> \$ ${range[0]} - \$ ${range[1]} (${priceHitCounter})</span>`;
 					rangeHtml += "</div>";
 				}
 			});
 			return rangeHtml;
+			// console.log("min: " + rangeMin);
+			// console.log(ranges);
+			// console.log(rangeMin + " - " + rangeMax);
 		}
 	}
 
@@ -662,68 +500,7 @@ if(isset($_GET['basic-search-inp']) && !empty($_GET['basic-search-inp'])){
 		return rangeObj;
 	}
 
-	function renderConditionFilter(newGameArr, usedGameArr){
-		$conditionHtml = "";
-		if(newGameArr == undefined){
-			return "";
-		}
-		var conditionObj = {}
-		newCounter = 0;
-		usedCounter = 0;
 
-		newGameArr.forEach(function(e){
-			if(e > 0){
-				newCounter ++;
-			}
-		});
-		usedGameArr.forEach(function(e){
-			if(e > 0){
-				usedCounter ++;
-			}
-		});
-
-		$conditionHtml += "<div>";
-		$conditionHtml +=	"<input type='checkbox' name='condition|new' filter-name='new' class='condition-filter grab-filter'>";
-		$conditionHtml +=	"<span> New ("+newCounter+")</span>"
-		$conditionHtml += "</div>";
-		$conditionHtml += "<div>";
-		$conditionHtml +=	"<input type='checkbox' name='condition|used' filter-name='used' class='condition-filter grab-filter'>";
-		$conditionHtml +=	"<span> Used ("+usedCounter+")</span>"
-		$conditionHtml += "</div>";
-
-		return $conditionHtml;
-
-	}
-	function renderProductTypeFilter(productTypeCount, queryObj){
-		productTypeHTML = "";
-		if(productTypeCount == undefined){
-			return productTypeHTML;
-		}
-		var productTypeObj = {};
-		productTypeCount.forEach(function(productType){
-			if(productType in productTypeObj){
-				productTypeObj[productType] += 1;
-			}
-			else{
-				productTypeObj[productType] = 1;
-			}
-		});
-
-		for (var key in productTypeObj) {
-			checked = "";
-			if(queryObj.includes(key)){
-				checked = "checked";
-			}
-			if(productTypeObj.hasOwnProperty(key)) {
-				productTypeHTML += "<div>";
-				// productTypeHTML += 	"<input type='checkbox' name='producttype|" + key + "' value='" + productTypeObj[key] + "'class='producttype-filter grab-filter' filter-name='" + key + "' >";
-				productTypeHTML += 	"<input type='checkbox' name='producttype|" + key + "' value='" + productTypeObj[key] + "'class='producttype-filter grab-filter' filter-name='" + key + "' " + checked + ">";
-				productTypeHTML += 	"<span> "+ key +" (" + productTypeObj[key] + ")</span>";
-				productTypeHTML += "</div>"
-		    }
-		}
-		return productTypeHTML;
-	}
 </script>
 </body>
 </html>

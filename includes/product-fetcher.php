@@ -11,23 +11,23 @@ $sql = "SELECT * FROM products WHERE ";
 $sql_count = "SELECT count(id) FROM products WHERE ";
 $slq_filter = "";
 
-$sql .= "title LIKE '{$decoded_data['queries']['basic']}%' ";
-$sql_count .= "title LIKE '{$decoded_data['queries']['basic']}%' ";
+$sql .= "platform = '{$decoded_data['queries']['basic']}' AND product_type = 'videojuego' ";
+$sql_count .= "platform = '{$decoded_data['queries']['basic']}' AND product_type = 'videojuego'";
 
-if(count($decoded_data['queries']['platform']) > 0){
-	foreach ($decoded_data['queries']['platform'] as $key => $value) {
-		if($key == 0){
-			$sql .= "AND (platform = '{$value}' ";
-			$sql_count .= "AND (platform = '{$value}' ";
-		}
-		else{
-			$sql .= "OR platform = '{$value}' ";
-			$sql_count .= "OR platform = '{$value}' ";
-		}
-	}
-	$sql .= ") ";
-	$sql_count .= ") ";
-}
+// if(count($decoded_data['queries']['platform']) > 0){
+// 	foreach ($decoded_data['queries']['platform'] as $key => $value) {
+// 		if($key == 0){
+// 			$sql .= "AND (platform = '{$value}' ";
+// 			$sql_count .= "AND (platform = '{$value}' ";
+// 		}
+// 		else{
+// 			$sql .= "OR platform = '{$value}' ";
+// 			$sql_count .= "OR platform = '{$value}' ";
+// 		}
+// 	}
+// 	$sql .= ") ";
+// 	$sql_count .= ") ";
+// }
 
 if(count($decoded_data['queries']['pricerange']) > 0){
 	foreach ($decoded_data['queries']['pricerange'] as $key => $value) {
@@ -49,20 +49,6 @@ if(count($decoded_data['queries']['pricerange']) > 0){
 	$sql .= ") ";
 	$sql_count .= ") ";
 }
-if(count($decoded_data['queries']['producttype']) > 0){
-	foreach ($decoded_data['queries']['producttype'] as $key => $value) {
-		if($key == 0){
-			$sql .= "AND (product_type = '{$value}' ";
-			$sql_count .= "AND (product_type = '{$value}' ";
-		}
-		else{
-			$sql .= "OR product_type = '{$value}' ";
-			$sql_count .= "OR product_type = '{$value}' ";
-		}
-	}
-	$sql .= ") ";
-	$sql_count .= ") ";
-}
 if(count($decoded_data['queries']['condition']) > 0){
 	foreach ($decoded_data['queries']['condition'] as $value) {
 		if(strpos($value, "new") !== false){
@@ -75,13 +61,8 @@ if(count($decoded_data['queries']['condition']) > 0){
 		}
 	}
 }
-
 $slq_filter = $sql;
-
-if(isset($decoded_data["sort_by"]) and !empty($decoded_data["sort_by"])){
-	$sql .= "ORDER BY {$decoded_data["sort_by"]} {$decoded_data["asc_desc"]} ";
-}
-$sql .= "LIMIT 2 OFFSET {$decoded_data["pagination_offset"]}";
+$sql .= "LIMIT 12 OFFSET {$decoded_data["pagination_offset"]}";
 
 // end of SQL QUERY creation --------------------------
 
@@ -89,10 +70,10 @@ $sql .= "LIMIT 2 OFFSET {$decoded_data["pagination_offset"]}";
 // $returnedHtml = json_encode($completeList);
 // echo $returnedHtml;
 
-renderSeach($conn, $sql, $slq_filter, $decoded_data);
+renderSeach($conn, $sql, $slq_filter );
 mysqli_close($conn);
 
-function renderSeach($db, $query, $query2, $decoded_data){
+function renderSeach($db, $query, $query2){
 	$result = mysqli_query($db, $query);
 	$result_filters = mysqli_query($db, $query2);
 
@@ -105,7 +86,6 @@ function renderSeach($db, $query, $query2, $decoded_data){
 	if(mysqli_num_rows($result_filters) > 0){
 		foreach ($result_filters as $value) {
 			$platform_count[] = $value['platform'];
-			$producttype_count[] = $value['product_type'];
 			$new_count[] = $value['quantity_new'];
 			$used_count[] = $value['quantity_used'];
 			$price_new_count[] = $value['price_new'];
@@ -118,6 +98,7 @@ function renderSeach($db, $query, $query2, $decoded_data){
 		// $completeList["filters"] = $baseQuery;
 
 		foreach ($result as $key => $value) {
+			// echo $value['platform'].": ".$value['title'] . " <br>";
 			$isAvailable = "";
 			$productImg = "";
 			$urlImg = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/images/';
@@ -161,19 +142,17 @@ function renderSeach($db, $query, $query2, $decoded_data){
 		// $completeList["num_of_products"] = $num_of_products["count(id)"];
 		$completeList["num_of_products"] = count($platform_count);
 		$completeList["platform_count"] = $platform_count;
-		$completeList["producttype_count"] = $producttype_count;
 		$completeList["new_count"] = $new_count;
 		$completeList["used_count"] = $used_count;
 		$completeList["price_new_count"] = $price_new_count;
 		$completeList["price_used_count"] = $price_used_count;
-		$completeList["next_page"] = intval($decoded_data["pagination_offset"]) + intval($decoded_data["products_per_page"]);
-		$completeList["prev_page"] = intval($decoded_data["pagination_offset"]) - intval($decoded_data["products_per_page"]);
-		$completeList["current_page"] = intval($decoded_data["pagination_offset"]);
 
 		$returnedHtml = json_encode($completeList);
 		echo $returnedHtml;
 	}
 	else{
+		// $completeList["products"][] = "no result or error";
+		// $returnedHtml = json_encode($completeList);
 		echo json_encode("{}");
 	}
 }	

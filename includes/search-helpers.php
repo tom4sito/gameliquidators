@@ -1,65 +1,6 @@
 <?php
-function renderProducs($db, $column, $searchStr){
-	$sql = "SELECT * FROM products WHERE {$column} == '{$searchStr}";
-	$result = mysqli_query($db, $sql);
-	if(mysqli_num_rows($result) > 0){
-		$product_html = "";
-		foreach ($result as $key => $value) {
-
-			$isAvailable = "";
-			$productImg = "";
-			$urlImg = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/images/';
-
-			if($value['quantity_new'] > 0 or $value['quantity_used'] > 0){
-				$isAvailable = "disponible";
-			}
-			else{
-				$isAvailable = "agotado";
-			}
-
-			$img_sql = "SELECT image_name FROM images_table
-						WHERE product_id = {$value['id']}
-						AND image_name LIKE '%_thumb1%' ";
-
-			$img_result = mysqli_query($db, $img_sql);
-			if(mysqli_num_rows($img_result) > 0){
-				$img_row = mysqli_fetch_assoc($img_result);
-				$productImg = $urlImg . $img_row['image_name'];
-			}
-			else{
-				$productImg = $urlImg . "unavailable_thumb.jpg";
-			}
-
-			$product_html .= "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
-			$product_html .= 	"<div class='product-thumb-body'>";
-			$product_html .=    	"<div class='row'>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			$product_html .=				"<img class='product-thumb-img' src='{$productImg}'>";
-			$product_html .=			"</div>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			$product_html .=				"<div class='product-thumb-title'>{$value['title']}</div>";
-			$product_html .=				"<div>plataforma: <span>{$value['platform']}</span></div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_used']}</div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_new']}</div>";
-			$product_html .=				"<div>";
-			$product_html .=					"<span class='thumb-product-stock'>{$isAvailable}</span> | ";
-			$product_html .=					"<span class='thumb-product-studio'>{$value['studio']}</span>";
-			$product_html .=				"</div>";
-			$product_html .=			"</div>";
-			$product_html .=    	"</div>";
-			$product_html .= 	"</div>";
-			$product_html .= "</div>";
-
-		}
-		return $product_html;
-	}
-	else{
-		return "no result or error";
-	}
-}
-
-function renderSeach($db, $searchStr, $column){
-	$result = searchBase($db, $searchStr, $column);
+function renderSeach($db, $searchStr, $column, $limit){
+	$result = searchBase($db, $searchStr, $column, $limit);
 	if(mysqli_num_rows($result) > 0){
 		$product_html = "";
 		foreach ($result as $key => $value) {
@@ -143,6 +84,34 @@ function renderPlatformFilter($db, $searchStr, $column){
 	}
 }
 
+// returns html for product type filter
+function renderProductTypeFilter($db, $searchStr, $column){
+	$productTypeHtml = "";
+	$result = searchBaseForFilter($db, $searchStr, $column);
+	$productType = array();
+
+	if(mysqli_num_rows($result) > 0){
+		foreach ($result as $value) {
+			// echo $key . ": ". $value['platform'] . "<br>";
+			if (array_key_exists($value['product_type'], $productType)){
+				$productType[$value['product_type']] += 1;
+			}
+			else{
+				$productType[$value['product_type']] = 1;
+			}
+		}
+
+		foreach ($productType as $key => $value) {
+			$productTypeHtml .= "<div>";
+			$productTypeHtml .= 	"<input type='checkbox' name='producttype|{$key}' value='{$value}' class='producttype-filter grab-filter' filter-name='{$key}'>";
+			$productTypeHtml .= 	"<span> {$key} ({$value})</span>";
+			$productTypeHtml .= "</div>";
+		}
+
+		return $productTypeHtml;
+	}
+}
+
 // returns integer with quantity of products according to their condition
 function renderConditionFilter($db, $searchStr, $column){
 	$conditionHtml = "";
@@ -169,33 +138,6 @@ function renderConditionFilter($db, $searchStr, $column){
 		$conditionHtml .= "</div>";
 	}
 	return $conditionHtml;
-}
-// returns html for product type filter
-function renderProductTypeFilter($db, $searchStr, $column){
-	$productTypeHtml = "";
-	$result = searchBaseForFilter($db, $searchStr, $column);
-	$productType = array();
-
-	if(mysqli_num_rows($result) > 0){
-		foreach ($result as $value) {
-			// echo $key . ": ". $value['platform'] . "<br>";
-			if (array_key_exists($value['product_type'], $productType)){
-				$productType[$value['product_type']] += 1;
-			}
-			else{
-				$productType[$value['product_type']] = 1;
-			}
-		}
-
-		foreach ($productType as $key => $value) {
-			$productTypeHtml .= "<div>";
-			$productTypeHtml .= 	"<input type='checkbox' name='producttype|{$key}' value='{$value}' class='producttype-filter grab-filter' filter-name='{$key}'>";
-			$productTypeHtml .= 	"<span> {$key} ({$value})</span>";
-			$productTypeHtml .= "</div>";
-		}
-
-		return $platformHtml;
-	}
 }
 
 // returns an array with all products prices
@@ -291,7 +233,7 @@ function createRangeForPrice($min, $max){
 	return $rangeArr;
 }
 
-function searchBase($db, $searchStr, $column){
+function searchBase($db, $searchStr, $column, $limit){
 	$searchInput = $searchStr;
 	$searchParams = array('ps3'=>'PS3', 'playstation 3'=>'PS3', 
 					'ps4'=>'PS4', 'playstation 4'=>'PS4',
@@ -304,12 +246,12 @@ function searchBase($db, $searchStr, $column){
 			$sql = "SELECT {$column} FROM products 
 			WHERE platform = '$value'
 			AND title LIKE '{$searchInput}%' 
-			LIMIT 10 OFFSET 0";
+			LIMIT {$limit} OFFSET 0";
 		}
 	}
 
 	if(!isset($sql)){
-		$sql = "SELECT * FROM products WHERE title LIKE '{$searchInput}%' LIMIT 10 OFFSET 0";
+		$sql = "SELECT * FROM products WHERE title LIKE '{$searchInput}%' LIMIT {$limit} OFFSET 0";
 	}	
 
 	return mysqli_query($db, $sql);
@@ -362,16 +304,22 @@ function searchBaseGetProdCount($db, $searchStr, $column){
 	return $fetchCount["count(id)"];
 }
 
-function genPagination($totalProducts, $prodsPerPage){
+function genPagination($totalProducts, $prodsPerPage, $initialNextOffset){
 	$numOfPages = ceil($totalProducts/$prodsPerPage);
+	$selected = "";
+
 	$paginationHtml = "";
 	$paginationHtml .= "<a class='pagination-previous' href='#'><span>&laquo; Previo &nbsp;</span></a>";
 	$paginationHtml .= "<div class='pagination-pages'>";
 	for ($i = 1; $i <= $numOfPages; $i++ ){
-		$paginationHtml .= "<a href='#' class='selectpage' pageoffset='" . ($i - 1) * 2 . "'> " . $i . " </a>";
+		if((($i - 1) * $prodsPerPage) == 0){
+			$selected = "selected-page";
+		}
+		$paginationHtml .= "<a href='#' class='selectpage {$selected}' pageoffset='" . ($i - 1) * $prodsPerPage . "'> " . $i . " </a>";
+		$selected = "";
 	}
 	$paginationHtml .= "</div>";
-	$paginationHtml .= "<a class='pagination-next selectpage' href='#' pageoffset='2'><span> &nbsp; Siguiente &raquo;</span></a>";
+	$paginationHtml .= "<a class='pagination-next selectpage' href='#' pageoffset='{$initialNextOffset}'><span> &nbsp; Siguiente &raquo;</span></a>";
 	return $paginationHtml;
 }
 

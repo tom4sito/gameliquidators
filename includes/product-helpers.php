@@ -1,6 +1,7 @@
 <?php
-function renderProducs($db, $column, $searchStr){
-	$sql = "SELECT * FROM products WHERE {$column} == '{$searchStr}";
+function renderProducts($db, $column, $searchStr, $columnB, $searchStrB){
+	$sql = "SELECT * FROM products WHERE {$column} = '{$searchStr}' AND {$columnB} = '$searchStrB' ";
+
 	$result = mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) > 0){
 		$product_html = "";
@@ -58,64 +59,6 @@ function renderProducs($db, $column, $searchStr){
 	}
 }
 
-function renderSeach($db, $searchStr, $column){
-	$result = searchBase($db, $searchStr, $column);
-	if(mysqli_num_rows($result) > 0){
-		$product_html = "";
-		foreach ($result as $key => $value) {
-
-			$isAvailable = "";
-			$productImg = "";
-			$urlImg = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/images/';
-
-			if($value['quantity_new'] > 0 or $value['quantity_used'] > 0){
-				$isAvailable = "disponible";
-			}
-			else{
-				$isAvailable = "agotado";
-			}
-
-			$img_sql = "SELECT image_name FROM images_table
-						WHERE product_id = {$value['id']}
-						AND image_name LIKE '%_thumb1%' ";
-
-			$img_result = mysqli_query($db, $img_sql);
-			if(mysqli_num_rows($img_result) > 0){
-				$img_row = mysqli_fetch_assoc($img_result);
-				$productImg = $urlImg . $img_row['image_name'];
-			}
-			else{
-				$productImg = $urlImg . "unavailable_thumb.jpg";
-			}
-
-			$product_html .= "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
-			$product_html .= 	"<div class='product-thumb-body'>";
-			$product_html .=    	"<div class='row'>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			$product_html .=				"<img class='product-thumb-img' src='{$productImg}'>";
-			$product_html .=			"</div>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			$product_html .=				"<div class='product-thumb-title'>{$value['title']}</div>";
-			$product_html .=				"<div>plataforma: <span>{$value['platform']}</span></div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_used']}</div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_new']}</div>";
-			$product_html .=				"<div>";
-			$product_html .=					"<span class='thumb-product-stock'>{$isAvailable}</span> | ";
-			$product_html .=					"<span class='thumb-product-studio'>{$value['studio']}</span>";
-			$product_html .=				"</div>";
-			$product_html .=			"</div>";
-			$product_html .=    	"</div>";
-			$product_html .= 	"</div>";
-			$product_html .= "</div>";
-
-		}
-		return $product_html;
-	}
-	else{
-		return "no result or error";
-	}
-}	
-
 function renderPlatformFilter($db, $searchStr, $column){
 	$platformHtml = "";
 	$result = searchBaseForFilter($db, $searchStr, $column);
@@ -144,9 +87,9 @@ function renderPlatformFilter($db, $searchStr, $column){
 }
 
 // returns integer with quantity of products according to their condition
-function renderConditionFilter($db, $searchStr, $column){
+function renderConditionFilter($db, $platform, $column, $productType){
 	$conditionHtml = "";
-	$result = searchBaseForFilter($db, $searchStr, $column);
+	$result = searchBaseForFilter($db, $platform, $column, $productType);
 	$condition = 0;
 	$conditionState = "";
 
@@ -170,37 +113,14 @@ function renderConditionFilter($db, $searchStr, $column){
 	}
 	return $conditionHtml;
 }
-// returns html for product type filter
-function renderProductTypeFilter($db, $searchStr, $column){
-	$productTypeHtml = "";
-	$result = searchBaseForFilter($db, $searchStr, $column);
-	$productType = array();
-
-	if(mysqli_num_rows($result) > 0){
-		foreach ($result as $value) {
-			// echo $key . ": ". $value['platform'] . "<br>";
-			if (array_key_exists($value['product_type'], $productType)){
-				$productType[$value['product_type']] += 1;
-			}
-			else{
-				$productType[$value['product_type']] = 1;
-			}
-		}
-
-		foreach ($productType as $key => $value) {
-			$productTypeHtml .= "<div>";
-			$productTypeHtml .= 	"<input type='checkbox' name='producttype|{$key}' value='{$value}' class='producttype-filter grab-filter' filter-name='{$key}'>";
-			$productTypeHtml .= 	"<span> {$key} ({$value})</span>";
-			$productTypeHtml .= "</div>";
-		}
-
-		return $platformHtml;
-	}
-}
 
 // returns an array with all products prices
-function getPriceArrForFilter($db, $searchStr, $column){
-	$result = searchBaseForFilter($db, $searchStr, $column);
+function getPriceArrForFilter($db, $platform, $column, $productType){
+	$sql = "SELECT {$column} FROM products 
+			WHERE platform = '{$platform}'
+			AND product_type = '{$productType}'
+			LIMIT 12 OFFSET 0";
+	$result = mysqli_query($db, $sql);
 	$temp_array  = array();
 
 	if(mysqli_num_rows($result) > 0){
@@ -211,27 +131,29 @@ function getPriceArrForFilter($db, $searchStr, $column){
 	return $temp_array;
 }
 
-function renderPriceFilter($db, $searchStr){
+function renderPriceFilter($db, $platform, $productType){
 	$rangeHtml = "";
 	$prevRange = 0;
 	$currentRange = 0;
 
 	$priceRangeArr = array();
-	$fullPriceArr = getPriceArrForFilter($db, $searchStr, "price_new");
-	if(count($fullPriceArr) > 0){
-		$fullPriceArr = array_merge($fullPriceArr, getPriceArrForFilter($db, $searchStr, "price_used"));
+	$newPriceArr = getPriceArrForFilter($db, $platform, "price_new", $productType);
+	if(count($newPriceArr) > 0){
+		$fullPriceArr = array_merge($newPriceArr, getPriceArrForFilter($db, $platform, "price_used", $productType));
 		sort($fullPriceArr);
 
 		$rangeMin = $fullPriceArr[0];
 		$rangeMax = $fullPriceArr[sizeof($fullPriceArr) - 1]; 
 		
 		$ranges = createRangeForPrice($rangeMin, $rangeMax);
+		// var_dump($fullPriceArr);
 
 		foreach($ranges as $range){
 
 			$priceCounter = 0;
 			foreach ($fullPriceArr as $productPrice) {
 				if(($productPrice > $prevRange) and ($productPrice <= $range)){
+					// echo $productPrice . " : ";
 					$priceCounter += 1;
 				}			
 			}
@@ -315,26 +237,12 @@ function searchBase($db, $searchStr, $column){
 	return mysqli_query($db, $sql);
 }
 
-function searchBaseForFilter($db, $searchStr, $column){
-	$searchInput = $searchStr;
-	$searchParams = array('ps3'=>'PS3', 'playstation 3'=>'PS3', 
-					'ps4'=>'PS4', 'playstation 4'=>'PS4',
-					'xbox 360'=>'XBOX 360', 'xbox one'=>'XBOX ONE',
-					'xbox 1'=>'XBOX ONE', 'nintendo switch' => 'Nintendo Switch');
-
-	foreach ($searchParams as $key => $value) {
-		if(strpos($searchInput, $key) !== false){
-			$searchInput = trim(str_replace($key, "", $searchInput));
-			$sql = "SELECT {$column} FROM products 
-			WHERE platform = '$value'
-			AND title LIKE '{$searchInput}%' ";
-		}
-	}
-
-	if(!isset($sql)){
-		$sql = "SELECT * FROM products WHERE title LIKE '{$searchInput}%'";
-	}	
-
+function searchBaseForFilter($db, $platform, $column, $product_type){
+	$sql = "SELECT {$column} FROM products 
+			WHERE platform = '{$platform}'
+			AND product_type = '{$product_type}'
+			LIMIT 10 OFFSET 0";
+	
 	return mysqli_query($db, $sql);
 }
 
@@ -386,5 +294,4 @@ function ifGetVarIsSet($postInput){
 	}
 	return $returnedHtml;
 }
-
 ?>
