@@ -29,13 +29,13 @@ function renderSeach($db, $platform, $productType, $limit){
 				$productImg = $urlImg . "unavailable_thumb.jpg";
 			}
 
-			$product_html .= "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
+			$product_html .= "<div class='product-thumb'>";
 			$product_html .= 	"<div class='product-thumb-body'>";
-			$product_html .=    	"<div class='row'>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
+			$product_html .=    	"<div class=''>";
+			$product_html .=			"<div class='product-thumb-img-wrapper'>";
 			$product_html .=				"<img class='product-thumb-img' src='{$productImg}'>";
 			$product_html .=			"</div>";
-			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
+			$product_html .=			"<div class='product-thumb-content'>";
 			$product_html .=				"<div class='product-thumb-title'>{$value['title']}</div>";
 			$product_html .=				"<div>plataforma: <span>{$value['platform']}</span></div>";
 			$product_html .=				"<div class='product-thumb-price'>{$value['price_used']}</div>";

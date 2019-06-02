@@ -1,6 +1,8 @@
 <?php
-function renderSeach($db, $platform, $productType, $limit){
-	$result = searchBase($db, $platform, $productType, $limit);
+function renderProducts($db, $column, $searchStr, $columnB, $searchStrB){
+	$sql = "SELECT * FROM products WHERE {$column} = '{$searchStr}' AND {$columnB} = '$searchStrB' ";
+
+	$result = mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) > 0){
 		$product_html = "";
 		foreach ($result as $key => $value) {
@@ -55,7 +57,7 @@ function renderSeach($db, $platform, $productType, $limit){
 	else{
 		return "no result or error";
 	}
-}	
+}
 
 function renderPlatformFilter($db, $searchStr, $column){
 	$platformHtml = "";
@@ -84,46 +86,18 @@ function renderPlatformFilter($db, $searchStr, $column){
 	}
 }
 
-// returns html for product type filter
-function renderProductTypeFilter($db, $platform, $productType, $column){
-	$productTypeHtml = "";
-	$result = searchBaseForFilter($db, $platform, $productType, $column);
-	$productType = array();
-
-	if(mysqli_num_rows($result) > 0){
-		foreach ($result as $value) {
-			// echo $key . ": ". $value['platform'] . "<br>";
-			if (array_key_exists($value['product_type'], $productType)){
-				$productType[$value['product_type']] += 1;
-			}
-			else{
-				$productType[$value['product_type']] = 1;
-			}
-		}
-
-		foreach ($productType as $key => $value) {
-			$productTypeHtml .= "<div>";
-			$productTypeHtml .= 	"<input type='checkbox' name='producttype|{$key}' value='{$value}' class='producttype-filter grab-filter' filter-name='{$key}'>";
-			$productTypeHtml .= 	"<span> {$key} ({$value})</span>";
-			$productTypeHtml .= "</div>";
-		}
-
-		return $productTypeHtml;
-	}
-}
-
 // returns integer with quantity of products according to their condition
-function renderConditionFilter($db, $platform, $productType, $column){
+function renderConditionFilter($db, $platform, $column, $productType){
 	$conditionHtml = "";
-	$result = searchBaseForFilter($db, $platform, $productType, $column);
+	$result = searchBaseForFilter($db, $platform, $column, $productType);
 	$condition = 0;
 	$conditionState = "";
 
 	if($column == "quantity_used"){
-		$conditionState = "Used";
+		$conditionState = "used";
 	}
 	else{
-		$conditionState = "New";
+		$conditionState = "new";
 	}
 
 	if(mysqli_num_rows($result) > 0){
@@ -141,13 +115,17 @@ function renderConditionFilter($db, $platform, $productType, $column){
 }
 
 // returns an array with all products prices
-function getPriceArrForFilter($db, $platform, $productType, $priceType){
-	$result = searchBaseForFilter($db, $platform, $productType, $priceType);
+function getPriceArrForFilter($db, $platform, $column, $productType){
+	$sql = "SELECT {$column} FROM products 
+			WHERE platform = '{$platform}'
+			AND product_type = '{$productType}'
+			LIMIT 12 OFFSET 0";
+	$result = mysqli_query($db, $sql);
 	$temp_array  = array();
 
 	if(mysqli_num_rows($result) > 0){
 		foreach($result as $value){
-			array_push($temp_array, $value[$priceType]);
+			array_push($temp_array, $value[$column]);
 		}
 	}
 	return $temp_array;
@@ -159,21 +137,23 @@ function renderPriceFilter($db, $platform, $productType){
 	$currentRange = 0;
 
 	$priceRangeArr = array();
-	$fullPriceArr = getPriceArrForFilter($db, $platform, $productType, "price_new");
-	if(count($fullPriceArr) > 0){
-		$fullPriceArr = array_merge($fullPriceArr, getPriceArrForFilter($db, $platform, $productType, "price_used"));
+	$newPriceArr = getPriceArrForFilter($db, $platform, "price_new", $productType);
+	if(count($newPriceArr) > 0){
+		$fullPriceArr = array_merge($newPriceArr, getPriceArrForFilter($db, $platform, "price_used", $productType));
 		sort($fullPriceArr);
 
 		$rangeMin = $fullPriceArr[0];
 		$rangeMax = $fullPriceArr[sizeof($fullPriceArr) - 1]; 
 		
 		$ranges = createRangeForPrice($rangeMin, $rangeMax);
+		// var_dump($fullPriceArr);
 
 		foreach($ranges as $range){
 
 			$priceCounter = 0;
 			foreach ($fullPriceArr as $productPrice) {
 				if(($productPrice > $prevRange) and ($productPrice <= $range)){
+					// echo $productPrice . " : ";
 					$priceCounter += 1;
 				}			
 			}
@@ -191,33 +171,6 @@ function renderPriceFilter($db, $platform, $productType){
 	}
 	else{
 		echo "";
-	}
-}
-
-function renderStudioFilter($db, $platform, $productType, $column){
-	$productStudioHtml = "";
-	$result = searchBaseForFilter($db, $platform, $productType, $column);
-	$productStudio = array();
-
-	if(mysqli_num_rows($result) > 0){
-		foreach ($result as $value) {
-			// echo $key . ": ". $value['platform'] . "<br>";
-			if (array_key_exists($value['studio'], $productStudio)){
-				$productStudio[$value['studio']] += 1;
-			}
-			else{
-				$productStudio[$value['studio']] = 1;
-			}
-		}
-
-		foreach ($productStudio as $key => $value) {
-			$productStudioHtml .= "<div>";
-			$productStudioHtml .= 	"<input type='checkbox' name='studio|{$key}' value='{$value}' class='studio-filter grab-filter' filter-name='{$key}'>";
-			$productStudioHtml .= 	"<span> {$key} ({$value})</span>";
-			$productStudioHtml .= "</div>";
-		}
-
-		return $productStudioHtml;
 	}
 }
 
@@ -260,38 +213,73 @@ function createRangeForPrice($min, $max){
 	return $rangeArr;
 }
 
-function searchBase($db, $platform, $productType, $limit){
-	$sql = "SELECT * FROM products WHERE platform = '{$platform}' AND product_type = '{$productType}' LIMIT {$limit} OFFSET 0";
+function searchBase($db, $searchStr, $column){
+	$searchInput = $searchStr;
+	$searchParams = array('ps3'=>'PS3', 'playstation 3'=>'PS3', 
+					'ps4'=>'PS4', 'playstation 4'=>'PS4',
+					'xbox 360'=>'XBOX 360', 'xbox one'=>'XBOX ONE',
+					'xbox 1'=>'XBOX ONE', 'nintendo switch' => 'Nintendo Switch');
+
+	foreach ($searchParams as $key => $value) {
+		if(strpos($searchInput, $key) !== false){
+			$searchInput = trim(str_replace($key, "", $searchInput));
+			$sql = "SELECT {$column} FROM products 
+			WHERE platform = '$value'
+			AND title LIKE '{$searchInput}%' 
+			LIMIT 10 OFFSET 0";
+		}
+	}
+
+	if(!isset($sql)){
+		$sql = "SELECT * FROM products WHERE title LIKE '{$searchInput}%' LIMIT 10 OFFSET 0";
+	}	
+
 	return mysqli_query($db, $sql);
 }
 
-function searchBaseForFilter($db, $platform, $productType, $column){
-	$sql = "SELECT {$column} FROM products WHERE platform = '{$platform}' AND product_type = '{$productType}'";
+function searchBaseForFilter($db, $platform, $column, $product_type){
+	$sql = "SELECT {$column} FROM products 
+			WHERE platform = '{$platform}'
+			AND product_type = '{$product_type}'
+			LIMIT 10 OFFSET 0";
+	
 	return mysqli_query($db, $sql);
 }
 
-function searchBaseGetProdCount($db, $platform, $productType, $column){
-	$sql = "SELECT count({$column}) FROM products WHERE platform = '{$platform}' AND product_type = '{$productType}' ";
+function searchBaseGetProdCount($db, $searchStr, $column){
+	$searchInput = $searchStr;
+	$searchParams = array('ps3'=>'PS3', 'playstation 3'=>'PS3', 
+					'ps4'=>'PS4', 'playstation 4'=>'PS4',
+					'xbox 360'=>'XBOX 360', 'xbox one'=>'XBOX ONE',
+					'xbox 1'=>'XBOX ONE', 'nintendo switch' => 'Nintendo Switch');
+
+	foreach ($searchParams as $key => $value) {
+		if(strpos($searchInput, $key) !== false){
+			$searchInput = trim(str_replace($key, "", $searchInput));
+			$sql = "SELECT count({$column}) FROM products 
+			WHERE platform = '$value'
+			AND title LIKE '{$searchInput}%' ";
+		}
+	}
+
+	if(!isset($sql)){
+		$sql = "SELECT count({$column}) FROM products WHERE title LIKE '{$searchInput}%' ";
+	}	
+
 	$fetchCount =  mysqli_fetch_assoc(mysqli_query($db, $sql));
 	return $fetchCount["count(id)"];
 }
 
-function genPagination($totalProducts, $prodsPerPage, $initialNextOffset){
+function genPagination($totalProducts, $prodsPerPage){
 	$numOfPages = ceil($totalProducts/$prodsPerPage);
-	$selected = "";
-
 	$paginationHtml = "";
 	$paginationHtml .= "<a class='pagination-previous' href='#'><span>&laquo; Previo &nbsp;</span></a>";
 	$paginationHtml .= "<div class='pagination-pages'>";
 	for ($i = 1; $i <= $numOfPages; $i++ ){
-		if((($i - 1) * $prodsPerPage) == 0){
-			$selected = "selected-page";
-		}
-		$paginationHtml .= "<a href='#' class='selectpage {$selected}' pageoffset='" . ($i - 1) * $prodsPerPage . "'> " . $i . " </a>";
-		$selected = "";
+		$paginationHtml .= "<a href='#' class='selectpage' pageoffset='" . ($i - 1) * 2 . "'> " . $i . " </a>";
 	}
 	$paginationHtml .= "</div>";
-	$paginationHtml .= "<a class='pagination-next selectpage' href='#' pageoffset='{$initialNextOffset}'><span> &nbsp; Siguiente &raquo;</span></a>";
+	$paginationHtml .= "<a class='pagination-next selectpage' href='#' pageoffset='2'><span> &nbsp; Siguiente &raquo;</span></a>";
 	return $paginationHtml;
 }
 
@@ -306,7 +294,4 @@ function ifGetVarIsSet($postInput){
 	}
 	return $returnedHtml;
 }
-
-// echo renderSeach($conn, "ps4", "Videojuego", PRODUCTS_PER_PAGE);
-
 ?>

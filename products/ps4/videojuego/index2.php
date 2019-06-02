@@ -6,10 +6,10 @@ error_reporting(E_ALL);
 $doc_root = $_SERVER['DOCUMENT_ROOT']; 
 $includes_dir = $doc_root.'/gameliquidators/includes/';
 require $includes_dir.'db_connect.php';
-require $includes_dir.'product-helpers.php';
+require $includes_dir.'product-helpers-2.php';
 
-define("PRODUCTS_PER_PAGE", 2);
-define("INITIAL_NEXT_OFFSET", 2);
+define("PRODUCTS_PER_PAGE", 4);
+define("INITIAL_NEXT_OFFSET", 4);
 
 // if(isset($_SESSION['username'])){
 //     echo "session started username: ".$_SESSION['username'];
@@ -24,6 +24,11 @@ define("INITIAL_NEXT_OFFSET", 2);
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">
 	<style type="text/css">
+		/* main container */
+		.main-container{
+			max-width: 1360px;
+			padding: 20px;
+		}
 		/* Formatting search box */
 		.search-box{
 		    width: 300px;
@@ -72,6 +77,8 @@ define("INITIAL_NEXT_OFFSET", 2);
 		/*-----------thumbnails*/
 		.product-thumb{
 			margin-bottom: 10px;
+			max-width: 250px;
+			margin: 10px;
 		}
 
 		.product-thumb-body{
@@ -112,7 +119,18 @@ define("INITIAL_NEXT_OFFSET", 2);
 		.selected-page{
 			color: red;
 		}
-
+		#paginationid{
+			padding-left: 25px;
+		}
+		@media screen and (min-width: 577px){
+			/*----hides filters button -----*/
+			.hide-filter-btn{
+				display: none;
+			}
+			.display-off{
+				display: block;
+			}
+		}
 		@media screen and (max-width: 576px) {
 			.product-thumb-body{
 				/*background-color: #ccc;*/
@@ -145,14 +163,59 @@ define("INITIAL_NEXT_OFFSET", 2);
 				margin-right: 5px;
 				display: block;
 			}
+			/*----displays filters button -----*/
+			.hide-filter-btn{
+				display: block;
+			}
+			.display-off{
+				display: none;
+			}
 		}
+
+
+		span{
+			font-size: 14px;
+		}
+
+		/*----------------flexbox---------------------------------*/
+		.all-products-row{
+			display: flex;
+			/*max-width: 1360px;*/
+		}
+		.products-thumbs-col{
+			flex: 1;
+		}
+		.basic-seach-cont{
+			display: flex;
+			flex-wrap: wrap;
+			padding-left: 25px;
+		}
+
+		@media screen and (min-width: 1380px){
+			.filters-col{
+			}
+			.products-thumbs-col{
+				flex: 1;
+			}
+		}
+		@media screen and (max-width: 1050px){
+			.products-thumbs-col{
+				flex: 1;
+			}
+		}
+		@media screen and (max-width: 768px){
+			.all-products-row{
+				flex-direction: column;
+			}
+		}
+
 	</style>
 </head>
 <body>
 <div>
 <?php include($includes_dir."navbar.php"); ?>
 </div>
-<div class="sort-bar">
+<!-- <div class="sort-bar">
 	Ordenar Por: 
 	<select name="sort-criteria" id="sort-criteria">
 		<option value="" selected disabled hidden>Escoge Criterio de Orden</option>
@@ -165,12 +228,25 @@ define("INITIAL_NEXT_OFFSET", 2);
 		<option value="price-used-lth">Precio Usado: Menor a Mayor</option>
 		<option value="price-used-htl">Precio Usado: Mayor a Menor</option>
 	</select>
-</div>
+</div> -->
 <div class="main-container">
-
-<div class="container-fluid">
-	<div class="row all-products-row">
-		<div class="col-lg-2 col-md-2 filters-col">
+	<div class="sort-bar">
+		Ordenar Por: 
+		<select name="sort-criteria" id="sort-criteria">
+			<option value="" selected disabled hidden>Escoge Criterio de Orden</option>
+			<option value="title-lth">Titulo: A-Z</option>
+			<option value="title-htl">Titulo: Z-A</option>
+			<option value="year-lth">Año: Menor a Mayor</option>
+			<option value="year-htl">Año: Mayor a Menor </option>
+			<option value="price-new-lth">Precio Nuevo: Menor a Mayor</option>
+			<option value="price-new-htl">Precio Nuevo: Mayor a Menor</option>
+			<option value="price-used-lth">Precio Usado: Menor a Mayor</option>
+			<option value="price-used-htl">Precio Usado: Mayor a Menor</option>
+		</select>
+	</div>
+	<div class="filters-on-off hide-filter-btn">Ver Filtros</div>
+	<div class="all-products-row">
+		<div class="filters-col display-off">
 			<div id="data-store" basic-query=""></div>
 			<form action="" method="get">
 
@@ -205,8 +281,8 @@ define("INITIAL_NEXT_OFFSET", 2);
 				</div>
 			</form>
 		</div>
-		<div class="col-lg-10 col-md-10 products-thumbs-col">
-			<div class="row basic-seach-cont" search-term="" >
+		<div class="products-thumbs-col">
+			<div class="basic-seach-cont" search-term="" >
 				<?php 
 					echo renderSeach($conn, "ps4", "Videojuego", PRODUCTS_PER_PAGE);
 					echo "<br>";
@@ -220,7 +296,6 @@ define("INITIAL_NEXT_OFFSET", 2);
 			</div>
 		</div>
 	</div>
-</div>
 
 <?php mysqli_close($conn); ?>
 </div>
@@ -229,6 +304,7 @@ define("INITIAL_NEXT_OFFSET", 2);
 <script type="text/javascript" src="/gameliquidators/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/basic-search.js"></script>
 <script type="text/javascript">
+	const PRODUCTS_PER_PAGE = 4;
 	filterParameters = {
 		"queries": {
 			"basic": "ps4",
@@ -239,10 +315,36 @@ define("INITIAL_NEXT_OFFSET", 2);
 			"producttype":[]
 		},
 		"pagination_offset": 0,
-		"products_per_page": 2,
+		"products_per_page": PRODUCTS_PER_PAGE,
 		"order_by": "",
 		"asc_desc": ""
 	};
+
+	//show hide filters
+	$(".filters-on-off").on("click", function(){
+		if($(".filters-col").hasClass("display-off")){
+			$(".filters-col").removeClass("display-off");
+			$(this).text("Esconder Filtros");
+		}else{
+			$(".filters-col").addClass("display-off");
+			$(this).text("Ver Filtros");
+		}
+	});
+
+	
+	// $(window).resize(function(){
+	// 	if(window.innerWidth <= 576){
+	// 		$(".filters-col").addClass("display-off");
+	// 	}
+	// 	else{
+	// 		$(".filters-col").removeClass("display-off");
+	// 	}
+	// });
+
+	// if(window.matchMedia('screen and (max-width: 576px)').matches){
+	// 	console.log("java screen!!!");
+	// 	$(".filters-col").addClass("display-off");
+	// }
 
 	//sets this va with the results from basic query
 	basicQueryCopy = $.ajax({
@@ -376,7 +478,7 @@ define("INITIAL_NEXT_OFFSET", 2);
 				$(".basic-seach-cont").prepend(genFilterProductsHtml(data));
 
 				$(".pagination").empty();
-				$(".pagination").prepend(genPagination(data, 2));
+				$(".pagination").prepend(genPagination(data, PRODUCTS_PER_PAGE));
 				// if(extra[0] != "platform"){
 				// 	$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
 				// }
@@ -419,7 +521,7 @@ define("INITIAL_NEXT_OFFSET", 2);
 				$( ".basic-seach-cont" ).empty();
 				$( ".basic-seach-cont" ).prepend(genFilterProductsHtml(data));
 				$( ".pagination" ).empty();
-				$( ".pagination" ).prepend(genPagination(data, 2));
+				$( ".pagination" ).prepend(genPagination(data, PRODUCTS_PER_PAGE));
 				// $("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
 				// $("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count));
 				// $("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count));
@@ -732,7 +834,7 @@ define("INITIAL_NEXT_OFFSET", 2);
 			return "";
 		}
 
-		numOfPages = Math.ceil(pageObj['num_of_products']/2);
+		numOfPages = Math.ceil(pageObj['num_of_products']/productsPerPage);
 		console.log("genPagination numofpages: "+ numOfPages);
 		if(numOfPages <= 1){
 			return "";

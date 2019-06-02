@@ -50,19 +50,37 @@ if(count($decoded_data['queries']['pricerange']) > 0){
 	$sql_count .= ") ";
 }
 if(count($decoded_data['queries']['condition']) > 0){
-	foreach ($decoded_data['queries']['condition'] as $value) {
-		if(strpos($value, "new") !== false){
+	foreach ($decoded_data['queries']['condition'] as $condition_value) {
+		if(strpos($condition_value, "new") !== false){
 			$sql .= "AND quantity_new > 0 ";
 			$sql_count .= "AND quantity_new > 0 ";
 		}
-		if(strpos($value, "used") !== false){
+		if(strpos($condition_value, "used") !== false){
 			$sql .= "AND quantity_used > 0 ";
 			$sql_count .= "AND quantity_used > 0 ";
 		}
 	}
 }
+if(count($decoded_data['queries']['studio']) > 0){
+	foreach ($decoded_data['queries']['studio'] as $key => $studio_value) {
+		if($key == 0){
+			$sql .= "AND (studio = '{$studio_value}' ";
+			$sql_count .= "AND (studio = '{$studio_value}'";
+		}
+		else{
+			$sql .= "OR studio = '{$studio_value}' ";
+			$sql_count .= "OR studio = '{$studio_value}'";
+		}
+	}
+	$sql .= ") ";
+	$sql_count .= ") ";
+}
 $slq_filter = $sql;
-$sql .= "LIMIT 12 OFFSET {$decoded_data["pagination_offset"]}";
+
+if(isset($decoded_data["sort_by"]) and !empty($decoded_data["sort_by"])){
+	$sql .= "ORDER BY {$decoded_data["sort_by"]} {$decoded_data["asc_desc"]} ";
+}
+$sql .= "LIMIT {$decoded_data["products_per_page"]} OFFSET {$decoded_data["pagination_offset"]}";
 
 // end of SQL QUERY creation --------------------------
 
@@ -70,10 +88,10 @@ $sql .= "LIMIT 12 OFFSET {$decoded_data["pagination_offset"]}";
 // $returnedHtml = json_encode($completeList);
 // echo $returnedHtml;
 
-renderSeach($conn, $sql, $slq_filter );
+renderSeach($conn, $sql, $slq_filter, $decoded_data);
 mysqli_close($conn);
 
-function renderSeach($db, $query, $query2){
+function renderSeach($db, $query, $query2, $decoded_data){
 	$result = mysqli_query($db, $query);
 	$result_filters = mysqli_query($db, $query2);
 
@@ -90,6 +108,7 @@ function renderSeach($db, $query, $query2){
 			$used_count[] = $value['quantity_used'];
 			$price_new_count[] = $value['price_new'];
 			$price_used_count[] = $value['price_used'];
+			$studio[] = $value['studio'];
 		}
 	}
 
@@ -146,6 +165,10 @@ function renderSeach($db, $query, $query2){
 		$completeList["used_count"] = $used_count;
 		$completeList["price_new_count"] = $price_new_count;
 		$completeList["price_used_count"] = $price_used_count;
+		$completeList["studio"] = $studio;
+		$completeList["next_page"] = intval($decoded_data["pagination_offset"]) + intval($decoded_data["products_per_page"]);
+		$completeList["prev_page"] = intval($decoded_data["pagination_offset"]) - intval($decoded_data["products_per_page"]);
+		$completeList["current_page"] = intval($decoded_data["pagination_offset"]);
 
 		$returnedHtml = json_encode($completeList);
 		echo $returnedHtml;
