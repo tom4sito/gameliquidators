@@ -17,7 +17,10 @@ if(isset($_SESSION['username'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>main page</title>
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/gameliquidators/css/fontawesome59/css/all.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/gameliquidators/css/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="/gameliquidators/css/slick/slick-theme.css"/>
     <style type="text/css">
         .nav-tree-container{
             margin-top: 20px;
@@ -96,7 +99,42 @@ if(isset($_SESSION['username'])){
             color: #000;
             font-weight: bold;
         }
-        @media only screen and (max-width: 920px) {
+        /*suggested products slider --------------------*/
+        .prods-suggest-container{
+            margin-top: 50px;
+        }
+        .prods-suggest-head{
+            text-align: center;
+        }
+        .prods-suggest-wrapper{
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 600px;
+            text-align: center;
+        }
+        .slick-slide img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .slick-prev:before{
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            visibility: visible;
+            content: "\f053";
+            color: red;
+            font-size: 30px;
+        }
+
+        .slick-next:before{
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            visibility: visible;
+            content: "\f054";
+            color: red;
+            font-size: 30px;
+        }
+        @media only screen and (max-width: 920px){
 /*            .product-img {
                 width: 230px;
                 height: 300px;
@@ -222,15 +260,32 @@ if(isset($_SESSION['username'])){
         </div>
     </div>
 </div>
-<?php include($includes_dir."footer.php"); ?>
+<div class="prods-suggest-container">
+    <div class="prods-suggest-head">
+        <h2>Otros productos que te pueden interesar</h2>
+    </div>
+    <div class="prods-suggest-wrapper">
+       <?php suggestionsSlide($conn, $_GET['id'], "ps4"); ?> 
+    </div>
+</div>
+<?php include($includes_dir."footer2.php"); ?>
 </div>
 
 
 <script type="text/javascript" src="/gameliquidators/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="/gameliquidators/css/fontawesome59/js/all.min.js" data-search-pseudo-elements></script>
 <script type="text/javascript" src="/gameliquidators/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/basic-search.js"></script>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script> -->
+<script type="text/javascript" src="/gameliquidators/js/slick/slick.min.js"></script>
 <script type="text/javascript">
+$(document).ready(function(){
+    $('.prods-suggest-wrapper').slick({
+      infinite: true,
+      slidesToShow: 3,
+      slidesToScroll: 3,
+      dots: true
+    });
+});
 </script>
 </body>
 </html>

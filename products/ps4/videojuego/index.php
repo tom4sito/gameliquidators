@@ -19,7 +19,7 @@ define("INITIAL_NEXT_OFFSET", 2);
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Basic Search</title>
+	<title>Playstation 4</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">

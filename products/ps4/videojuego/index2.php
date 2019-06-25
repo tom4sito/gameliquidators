@@ -19,15 +19,18 @@ define("INITIAL_NEXT_OFFSET", 4);
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Basic Search</title>
+	<title>Playstation 4</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">
+	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/fontawesome.min.css">
 	<style type="text/css">
 		/* main container */
 		.main-container{
 			max-width: 1360px;
 			padding: 20px;
+			margin-left: auto;
+			margin-right: auto;
 		}
 		/* Formatting search box */
 		.search-box{
@@ -73,12 +76,30 @@ define("INITIAL_NEXT_OFFSET", 4);
 		.no-wrap{
 			display: block;
 		}
+		/*----------sorting bar--------*/
+		.sort-bar{
+			margin: 10px 0px 30px 0px;
+		}
+		#sort-criteria {
+		    border: #6c757d solid 1px;
+		    background-color: #fff;
+		    color: #545b62;
+		}
+		/*----filters-----------*/
+		.filter-category h5 {
+		    margin-bottom: 0px;
+		}
+		.filter-container span {
+		    font-size: 12px;
+		}
 
 		/*-----------thumbnails*/
 		.product-thumb{
+			display: flex;
+			flex-direction: column;
 			margin-bottom: 10px;
-			max-width: 250px;
-			margin: 10px;
+			width: 210px;
+			margin: 25px 10px;
 		}
 
 		.product-thumb-body{
@@ -103,24 +124,54 @@ define("INITIAL_NEXT_OFFSET", 4);
 			border-width: 1px;
 			box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2), 0 2px 20px 0 rgba(0, 0, 0, 0.19);
 		}
+		.product-thumb-img-wrapper a {
+			color: #000;
+			text-align: center;
+		}
+		.product-thumb-img-wrapper a:hover {
+			text-decoration: none;
+		}
 		.product-thumb-img{
-			/*height: 160px;*/
-			/*width: 125px;*/
-			/*height: 60%;*/
-			width: 140px;
-			margin: auto;
+			width: 160px;
+			margin: 0px auto 5px auto;
 			display: block;
 		}
+		.product-thumb-content{
+			text-align: center;
+			padding: 5px 10px;
+		}
+		a{
+			color: #000;
+		}
+		a:hover{
+			text-decoration: none;
+			color: red;
+		}
 		.product-thumb-title{
-			/*text-align: center;*/
-			font-size: 12px;
+			font-size: 18px;
 			font-weight: bold;
+		}
+		.product-thumb-platform {
+		    color: red;
+		    font-size: 14px;
+		}
+		.product-thumb-price {
+		    font-size: 16px;
+		}
+		.product-thumb-price {
+		    font-size: 14px;
+		}
+		.product-thumb-studio {
+		    font-size: 14px;
 		}
 		.selected-page{
 			color: red;
 		}
 		#paginationid{
-			padding-left: 25px;
+			padding-left: 60px;
+		}
+		.bold-text{
+			font-weight: 600;
 		}
 		@media screen and (min-width: 577px){
 			/*----hides filters button -----*/
@@ -173,9 +224,9 @@ define("INITIAL_NEXT_OFFSET", 4);
 		}
 
 
-		span{
+/*		span{
 			font-size: 14px;
-		}
+		}*/
 
 		/*----------------flexbox---------------------------------*/
 		.all-products-row{
@@ -185,10 +236,10 @@ define("INITIAL_NEXT_OFFSET", 4);
 		.products-thumbs-col{
 			flex: 1;
 		}
-		.basic-seach-cont{
+		.basic-search-cont{
 			display: flex;
 			flex-wrap: wrap;
-			padding-left: 25px;
+			padding-left: 40px;
 		}
 
 		@media screen and (min-width: 1380px){
@@ -252,18 +303,18 @@ define("INITIAL_NEXT_OFFSET", 4);
 
 				<div class="filter-category">
 					<div class="filter-category-price">
-						<h6>Precio</h6>
+						<h5>Precio</h5>
 					</div>
-					<div class="filterContainer" id="priceFilterContainer">
+					<div class="filter-container" id="priceFilterContainer">
 						<?php echo renderPriceFilter($conn, "ps4", "Videojuego"); ?>
 					</div>
 				</div>
 				<hr>
 				<div class="filter-category">
 					<div class="filter-category-condition">
-						<h6>Condicion</h6>
+						<h5>Condicion</h5>
 					</div>
-					<div class="filterContainer" id="conditionFilterContainer">
+					<div class="filter-container" id="conditionFilterContainer">
 						<?php
 						echo renderConditionFilter($conn, "ps4", "Videojuego", "quantity_new");
 						echo renderConditionFilter($conn, "ps4", "Videojuego", "quantity_used");
@@ -273,16 +324,16 @@ define("INITIAL_NEXT_OFFSET", 4);
 				<hr>
 				<div class="filter-category">
 					<div class="filter-category-studio">
-						<h6>Fabricante</h6>
+						<h5>Fabricante</h5>
 					</div>
-					<div class="filterContainer" id="studioFilterContainer">
+					<div class="filter-container" id="studioFilterContainer">
 						<?php echo renderStudioFilter($conn, "ps4", "Videojuego", "studio"); ?>
 					</div>
 				</div>
 			</form>
 		</div>
 		<div class="products-thumbs-col">
-			<div class="basic-seach-cont" search-term="" >
+			<div class="basic-search-cont" search-term="" >
 				<?php 
 					echo renderSeach($conn, "ps4", "Videojuego", PRODUCTS_PER_PAGE);
 					echo "<br>";
@@ -302,6 +353,7 @@ define("INITIAL_NEXT_OFFSET", 4);
 
 <script type="text/javascript" src="/gameliquidators/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/gameliquidators/js/fontawesome.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/basic-search.js"></script>
 <script type="text/javascript">
 	const PRODUCTS_PER_PAGE = 4;
@@ -474,8 +526,8 @@ define("INITIAL_NEXT_OFFSET", 4);
 				console.log(data);
 				// console.log(data.price_new_count);
 				// console.log(data.price_used_count);
-				$(".basic-seach-cont").empty();
-				$(".basic-seach-cont").prepend(genFilterProductsHtml(data));
+				$(".basic-search-cont").empty();
+				$(".basic-search-cont").prepend(genFilterProductsHtml(data));
 
 				$(".pagination").empty();
 				$(".pagination").prepend(genPagination(data, PRODUCTS_PER_PAGE));
@@ -518,8 +570,8 @@ define("INITIAL_NEXT_OFFSET", 4);
 			data: JSON.stringify(filterParameters),
 			success:function(data){
 				console.log(data);
-				$( ".basic-seach-cont" ).empty();
-				$( ".basic-seach-cont" ).prepend(genFilterProductsHtml(data));
+				$( ".basic-search-cont" ).empty();
+				$( ".basic-search-cont" ).prepend(genFilterProductsHtml(data));
 				$( ".pagination" ).empty();
 				$( ".pagination" ).prepend(genPagination(data, PRODUCTS_PER_PAGE));
 				// $("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
@@ -581,8 +633,8 @@ define("INITIAL_NEXT_OFFSET", 4);
 			data: JSON.stringify(filterParameters),
 			success:function(data){
 				console.log(data);
-				$(".basic-seach-cont").empty();
-				$(".basic-seach-cont").prepend(genFilterProductsHtml(data));
+				$(".basic-search-cont").empty();
+				$(".basic-search-cont").prepend(genFilterProductsHtml(data));
 			},
 			error: function (request, status, error) {
 			    alert(error);
@@ -597,24 +649,44 @@ define("INITIAL_NEXT_OFFSET", 4);
 		}
 
 		jsonProducts.products.forEach(function(productsData){
-			product_html += "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
-			product_html += 	"<div class='product-thumb-body'>";
-			product_html +=    	"<div class='row'>";
-			product_html +=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			product_html +=				"<img class='product-thumb-img' src='" + productsData.image + "'>";
+			// product_html += "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
+			// product_html += 	"<div class='product-thumb-body'>";
+			// product_html +=    	"<div class='row'>";
+			// product_html +=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
+			// product_html +=				"<img class='product-thumb-img' src='" + productsData.image + "'>";
+			// product_html +=			"</div>";
+			// product_html +=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
+			// product_html +=				"<div class='product-thumb-title'>" + productsData.title + "</div>";
+			// product_html +=				"<div>plataforma: <span>" + productsData.platform + "</span></div>";
+			// product_html +=				"<div class='product-thumb-price'>" + productsData.price_used + "</div>";
+			// product_html +=				"<div class='product-thumb-price'>" + productsData.price_new + "</div>";
+			// product_html +=				"<div>";
+			// product_html +=					"<span class='thumb-product-stock'>" + productsData.is_available + "</span> | ";
+			// product_html +=					"<span class='thumb-product-studio'>" + productsData.studio + "</span>";
+			// product_html +=				"</div>";
+			// product_html +=			"</div>";
+			// product_html +=    	"</div>";
+			// product_html += 	"</div>";
+			// product_html += "</div>";
+
+			product_html += "<div class='product-thumb'>";
+			product_html +=			"<div class='product-thumb-img-wrapper'>";
+			product_html +=				`<a href='show/?id=${productsData.id}'>`;
+			product_html +=					`<img class='product-thumb-img' src='${productsData.image}'>`;
+			product_html +=				"</a>";
 			product_html +=			"</div>";
-			product_html +=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
-			product_html +=				"<div class='product-thumb-title'>" + productsData.title + "</div>";
-			product_html +=				"<div>plataforma: <span>" + productsData.platform + "</span></div>";
-			product_html +=				"<div class='product-thumb-price'>" + productsData.price_used + "</div>";
-			product_html +=				"<div class='product-thumb-price'>" + productsData.price_new + "</div>";
-			product_html +=				"<div>";
-			product_html +=					"<span class='thumb-product-stock'>" + productsData.is_available + "</span> | ";
-			product_html +=					"<span class='thumb-product-studio'>" + productsData.studio + "</span>";
+			product_html +=			"<div class='product-thumb-content'>";
+			product_html +=				`<a href='show/?id=${productsData.id}'>`;
+			product_html +=					`<div class='product-thumb-title'>${productsData.title}</div>`;
+			product_html +=				"</a>";
+			product_html +=				`<div class='product-thumb-platform'>${productsData.platform} | terminar</div>`;
+			product_html +=				`<div class='product-thumb-price'>Usado: <span class='bold-text'> $${productsData.price_used }<span></div>`;
+			product_html +=				`<div class='product-thumb-price'>Nuevo: <span class='bold-text'> $${productsData.price_new}<span></div>`;
+			product_html +=				"<div class='product-thumb-studio'>";
+			// $product_html .=					"<span class='thumb-product-stock'>Fabricante: </span> ";
+			product_html +=					`Fabricante: <span class='bold-text'> ${productsData.studio}</span>`;
 			product_html +=				"</div>";
 			product_html +=			"</div>";
-			product_html +=    	"</div>";
-			product_html += 	"</div>";
 			product_html += "</div>";
 		});
 
@@ -681,7 +753,7 @@ define("INITIAL_NEXT_OFFSET", 4);
 				if(priceHitCounter > 0){
 					rangeHtml += "<div>";
 					rangeHtml += 	`<input type='checkbox' name='pricerange|${range[0]}|${range[1]}' value='${range[1]}' class='pricerange-filter grab-filter' filter-name='${range[0]}-${range[1]}'>`;
-					rangeHtml += 	`<span> \$ ${range[0]} - \$ ${range[1]} (${priceHitCounter})</span>`;
+					rangeHtml += 	`<span> \$${range[0]} - \$${range[1]} (${priceHitCounter})</span>`;
 					rangeHtml += "</div>";
 				}
 			});

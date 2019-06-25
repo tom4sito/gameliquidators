@@ -18,6 +18,8 @@ if(isset($_SESSION['username'])){
 	<title>main page</title>
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/gameliquidators/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/gameliquidators/css/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="/gameliquidators/css/slick/slick-theme.css"/>
     <style type="text/css">
         .nav-tree-container{
             margin-top: 20px;
@@ -221,6 +223,11 @@ if(isset($_SESSION['username'])){
             <div class="description-txt-div"><?php createDescription($conn, $_GET['id']); ?></div>
         </div>
     </div>
+    <div class="prods-suggest-container">
+      <div>your content</div>
+      <div>your content</div>
+      <div>your content</div>
+    </div>
 </div>
 <?php include($includes_dir."footer.php"); ?>
 </div>
@@ -229,8 +236,14 @@ if(isset($_SESSION['username'])){
 <script type="text/javascript" src="/gameliquidators/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/gameliquidators/js/basic-search.js"></script>
+<script type="text/javascript" src="/gameliquidators/js/slick/slick.min.js"></script>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script> -->
 <script type="text/javascript">
+$(document).ready(function(){
+    $('.your-class').slick({
+        setting-name: setting-value
+    });
+});
 </script>
 </body>
 </html>

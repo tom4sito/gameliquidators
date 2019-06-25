@@ -29,24 +29,42 @@ function renderSeach($db, $platform, $productType, $limit){
 				$productImg = $urlImg . "unavailable_thumb.jpg";
 			}
 
+			$tag_sql = "SELECT tag_name FROM tag t1 
+			INNER JOIN product_tag t2 
+			ON t1.tag_id = t2.tag_id 
+			AND t2.product_id = {$value['id']}";
+
+			$tag_result = mysqli_query($db, $tag_sql);
+			if(mysqli_num_rows($tag_result) > 0){
+				$tag_row = mysqli_fetch_assoc($tag_result);
+				$productTag = $tag_row['tag_name'];
+			}
+			else{
+				$productTag = "generico";
+			}
+
 			$product_html .= "<div class='product-thumb'>";
-			$product_html .= 	"<div class='product-thumb-body'>";
-			$product_html .=    	"<div class=''>";
+			// $product_html .= 	"<div class='product-thumb-body'>";
+			// $product_html .=    	"<div class=''>";
 			$product_html .=			"<div class='product-thumb-img-wrapper'>";
-			$product_html .=				"<img class='product-thumb-img' src='{$productImg}'>";
+			$product_html .=				"<a href='show/?id={$value['id']}'>";
+			$product_html .=					"<img class='product-thumb-img' src='{$productImg}'>";
+			$product_html .=				"</a>";
 			$product_html .=			"</div>";
 			$product_html .=			"<div class='product-thumb-content'>";
-			$product_html .=				"<div class='product-thumb-title'>{$value['title']}</div>";
-			$product_html .=				"<div>plataforma: <span>{$value['platform']}</span></div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_used']}</div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_new']}</div>";
-			$product_html .=				"<div>";
-			$product_html .=					"<span class='thumb-product-stock'>{$isAvailable}</span> | ";
-			$product_html .=					"<span class='thumb-product-studio'>{$value['studio']}</span>";
+			$product_html .=				"<a href='show/?id={$value['id']}'>";
+			$product_html .=					"<div class='product-thumb-title'>{$value['title']}</div>";
+			$product_html .=				"</a>";
+			$product_html .=				"<div class='product-thumb-platform'>{$value['platform']} | {$productTag}</div>";
+			$product_html .=				"<div class='product-thumb-price'>Usado: <span class='bold-text'> \${$value['price_used']}</span></div>";
+			$product_html .=				"<div class='product-thumb-price'>Nuevo: <span class='bold-text'>  \${$value['price_new']}</span></div>";
+			$product_html .=				"<div class='product-thumb-studio'>";
+			// $product_html .=					"<span class='thumb-product-stock'>Fabricante: </span> ";
+			$product_html .=					"Fabricante: <span class='bold-text'> {$value['studio']}</span>";
 			$product_html .=				"</div>";
 			$product_html .=			"</div>";
-			$product_html .=    	"</div>";
-			$product_html .= 	"</div>";
+			// $product_html .=    	"</div>";
+			// $product_html .= 	"</div>";
 			$product_html .= "</div>";
 
 		}
@@ -120,10 +138,10 @@ function renderConditionFilter($db, $platform, $productType, $column){
 	$conditionState = "";
 
 	if($column == "quantity_used"){
-		$conditionState = "Used";
+		$conditionState = "used";
 	}
 	else{
-		$conditionState = "New";
+		$conditionState = "new";
 	}
 
 	if(mysqli_num_rows($result) > 0){

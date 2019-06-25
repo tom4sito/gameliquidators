@@ -1,9 +1,12 @@
 .super-container{
     /*margin-left: 5%;*/
     /*margin-right: 5%;*/
-    max-width:1280px;
+    /*max-width:1280px;*/
     margin-left: auto;
     margin-right: auto;
+}
+.main{
+    max-width:1280px;
 }
 
 .carousel {
@@ -17,6 +20,10 @@
 }
 
 /*-----------------navbar--------*/
+.bg-light {
+    /*background-color: #ffffff!important;*/
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+}
 
 #search-button{
 	background: url(/gameliquidators/images/navicon_search.gif) 1px 1px no-repeat #ee362a;
@@ -93,8 +100,16 @@
 }
 
 /*------------------footer-----------------------*/
-.footer-container{
+.footer-div-container{
+    background-color: #ef3124;
     margin-top: 40px;
-    background-color: yellow;
+    color: #fff;
+    padding: 20px;
 }
+.footer-cols-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
 

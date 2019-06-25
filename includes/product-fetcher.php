@@ -143,7 +143,8 @@ function renderSeach($db, $query, $query2, $decoded_data){
 			}
 
 			// array with all product info
-			$tempProductArr = array("image"=>$productImg, 
+			$tempProductArr = array("image"=>$productImg,
+				"id"=>"{$value['id']}", 
 				"title"=>"{$value['title']}", 
 				"platform"=>"{$value['platform']}", 
 				"price_new"=>"{$value['price_new']}",

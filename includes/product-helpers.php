@@ -29,6 +29,20 @@ function renderSeach($db, $platform, $productType, $limit){
 				$productImg = $urlImg . "unavailable_thumb.jpg";
 			}
 
+			$tag_sql = "SELECT tag_name FROM tag t1 
+			INNER JOIN product_tag t2 
+			ON t1.tag_id = t2.tag_id 
+			AND t2.product_id = {$value['id']}";
+
+			$tag_result = mysqli_query($db, $tag_sql);
+			if(mysqli_num_rows($tag_result) > 0){
+				$tag_row = mysqli_fetch_assoc($tag_result);
+				$productTag = $tag_row['tag_name'];
+			}
+			else{
+				$productTag = "generico";
+			}
+
 			$product_html .= "<div class='col-lg-3 col-md-4 col-sm-6 col-12 product-thumb'>";
 			$product_html .= 	"<div class='product-thumb-body'>";
 			$product_html .=    	"<div class='row'>";
@@ -37,9 +51,9 @@ function renderSeach($db, $platform, $productType, $limit){
 			$product_html .=			"</div>";
 			$product_html .=			"<div class='col-lg-12 col-md-12 col-sm-12 col-5'>";
 			$product_html .=				"<div class='product-thumb-title'>{$value['title']}</div>";
-			$product_html .=				"<div>plataforma: <span>{$value['platform']}</span></div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_used']}</div>";
-			$product_html .=				"<div class='product-thumb-price'>{$value['price_new']}</div>";
+			$product_html .=				"<div> <span>{$value['platform']} | {$productTag}</span></div>";
+			$product_html .=				"<div class='product-thumb-price'>Usado: \${$value['price_used']}</div>";
+			$product_html .=				"<div class='product-thumb-price'>Nuevo: \${$value['price_new']}</div>";
 			$product_html .=				"<div>";
 			$product_html .=					"<span class='thumb-product-stock'>{$isAvailable}</span> | ";
 			$product_html .=					"<span class='thumb-product-studio'>{$value['studio']}</span>";
