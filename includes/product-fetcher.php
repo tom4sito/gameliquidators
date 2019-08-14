@@ -50,16 +50,30 @@ if(count($decoded_data['queries']['pricerange']) > 0){
 	$sql_count .= ") ";
 }
 if(count($decoded_data['queries']['condition']) > 0){
-	foreach ($decoded_data['queries']['condition'] as $condition_value) {
-		if(strpos($condition_value, "new") !== false){
-			$sql .= "AND quantity_new > 0 ";
-			$sql_count .= "AND quantity_new > 0 ";
+	foreach ($decoded_data['queries']['condition'] as $key => $condition_value) {
+		if($key == 0){
+			if(strpos($condition_value[0], "new") !== false){
+				$sql .= "AND (quantity_new > 0 ";
+				$sql_count .= "AND quantity_new > 0 ";
+			}
+			if(strpos($condition_value[0], "used") !== false){
+				$sql .= "AND (quantity_used > 0 ";
+				$sql_count .= "AND (quantity_used > 0 ";
+			}
 		}
-		if(strpos($condition_value, "used") !== false){
-			$sql .= "AND quantity_used > 0 ";
-			$sql_count .= "AND quantity_used > 0 ";
+		else{
+			if(strpos($condition_value[0], "new") !== false){
+				$sql .= "OR quantity_new > 0 ";
+				$sql_count .= "OR quantity_new > 0 ";
+			}
+			if(strpos($condition_value[0], "used") !== false){
+				$sql .= "OR quantity_used > 0 ";
+				$sql_count .= "OR quantity_used > 0 ";
+			}
 		}
 	}
+	$sql .= ") ";
+	$sql_count .= ") ";
 }
 if(count($decoded_data['queries']['studio']) > 0){
 	foreach ($decoded_data['queries']['studio'] as $key => $studio_value) {
@@ -170,6 +184,8 @@ function renderSeach($db, $query, $query2, $decoded_data){
 		$completeList["next_page"] = intval($decoded_data["pagination_offset"]) + intval($decoded_data["products_per_page"]);
 		$completeList["prev_page"] = intval($decoded_data["pagination_offset"]) - intval($decoded_data["products_per_page"]);
 		$completeList["current_page"] = intval($decoded_data["pagination_offset"]);
+		$completeList["sql"] = $query;
+
 
 		$returnedHtml = json_encode($completeList);
 		echo $returnedHtml;

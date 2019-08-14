@@ -82,7 +82,6 @@ function renderPlatformFilter($db, $searchStr, $column){
 
 	if(mysqli_num_rows($result) > 0){
 		foreach ($result as $value) {
-			// echo $key . ": ". $value['platform'] . "<br>";
 			if (array_key_exists($value['platform'], $platform)){
 				$platform[$value['platform']] += 1;
 			}
@@ -93,7 +92,7 @@ function renderPlatformFilter($db, $searchStr, $column){
 
 		foreach ($platform as $key => $value) {
 			$platformHtml .= "<div>";
-			$platformHtml .= 	"<input type='checkbox' name='platform|{$key}' value='{$value}' class='platform-filter grab-filter' filter-name='{$key}'>";
+			$platformHtml .= 	"<input type='checkbox' name='platform-{$key}' value='{$value}' class='platform-filter grab-filter' filter-name='{$key}' filter-type='platform'>";
 			$platformHtml .= 	"<span> {$key} ({$value})</span>";
 			$platformHtml .= "</div>";
 		}
@@ -121,7 +120,7 @@ function renderProductTypeFilter($db, $platform, $productType, $column){
 
 		foreach ($productType as $key => $value) {
 			$productTypeHtml .= "<div>";
-			$productTypeHtml .= 	"<input type='checkbox' name='producttype|{$key}' value='{$value}' class='producttype-filter grab-filter' filter-name='{$key}'>";
+			$productTypeHtml .= 	"<input type='checkbox' name='producttype|{$key}' value='{$value}' class='producttype-filter grab-filter' filter-name='{$key}' filter-type='producttype'>";
 			$productTypeHtml .= 	"<span> {$key} ({$value})</span>";
 			$productTypeHtml .= "</div>";
 		}
@@ -151,7 +150,7 @@ function renderConditionFilter($db, $platform, $productType, $column){
 			}
 		}
 		$conditionHtml .= "<div>";
-		$conditionHtml .= 	"<input type='checkbox' name='condition|{$conditionState}' filter-name='{$conditionState}' class='condition-filter grab-filter'>";
+		$conditionHtml .= 	"<input type='checkbox' name='condition-{$conditionState}' filter-name='{$conditionState}' class='condition-filter grab-filter' condition='{$conditionState}' filter-type='condition' qty='{$condition}'>";
 		$conditionHtml .=	"<span> {$conditionState} ({$condition})</span>";
 		$conditionHtml .= "</div>";
 	}
@@ -282,7 +281,7 @@ function writeRangeCheckbox($rangeArr){
 	$rangeHtml = "";
 	foreach($rangeArr as $range){
 		$rangeHtml .= "<div>";
-		$rangeHtml .= 	"<input type='checkbox' name='pricerange|{$range["start"]}|{$range["end"]}' value='{$range["start"]}' class='pricerange-filter grab-filter' filter-name='{$range["start"]}-{$range["end"]}'>";
+		$rangeHtml .= 	"<input type='checkbox' name='pricerange-{$range["start"]}-{$range["end"]}' qty='{$range["qty"]}' class='pricerange-filter grab-filter' min='{$range["start"]}' max='{$range["end"]}' filter-type='price'>";
 		$rangeHtml .= 	"<span> \${$range["start"]} - \${$range["end"]} ({$range["qty"]})</span>";
 		$rangeHtml .= "</div>";
 	}
@@ -307,7 +306,7 @@ function renderStudioFilter($db, $platform, $productType, $column){
 
 		foreach ($productStudio as $key => $value) {
 			$productStudioHtml .= "<div>";
-			$productStudioHtml .= 	"<input type='checkbox' name='studio|{$key}' value='{$value}' class='studio-filter grab-filter' filter-name='{$key}'>";
+			$productStudioHtml .= 	"<input type='checkbox' name='{$key}' value='{$value}' class='studio-filter grab-filter' filter-type='studio' >";
 			$productStudioHtml .= 	"<span> {$key} ({$value})</span>";
 			$productStudioHtml .= "</div>";
 		}

@@ -1,0 +1,28 @@
+check 500.000 - 750.000 , 300.000 - 400.000 , 150.000 - 200.000
+
+then check ***used***
+
+then i got 150.000 - 200.000 checked and repeated twice
+
+#########now to resolv go and check inpArr on sortArray function
+
+problem lyes in arraysort in the part where th filter for unique elements
+
+
+----------------------------------------------------------------------------------------------------------------
+SECOND BUG
+
+## check electronic arts, then check  $150.000 - $200.000, the uncheck electronic arts there you will find a bug
+
+----------------------------------------------------------------------------------------------------------------
+THIRD BUG
+
+## check new, then check  $150.000 - $200.000, then uncheck new there you will find "Cannot read property 'toString' of undefined"
+   newArr.push([parseInt(e[0], 10), parseInt(e[1], 10), e[2].toString()]) in sortArray function
+
+----------------------------------------------------------------------------------------------------------------
+FOURTH BUG
+## check "used" then check $150.000 - $200.000 (1), there a bug will pop up where "new" will show up as "checked". FIXED!!!!!!
+
+----------------------------------------------------------------------------------------------------------------
+continue with studio update on all filters cleared "ajax"

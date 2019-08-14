@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 $doc_root = $_SERVER['DOCUMENT_ROOT']; 
 $includes_dir = $doc_root.'/gameliquidators/includes/';
 require $includes_dir.'db_connect.php';
-require $includes_dir.'product-helpers-2.php';
+require $includes_dir.'product-helpers-3.php';
 
 define("PRODUCTS_PER_PAGE", 4);
 define("INITIAL_NEXT_OFFSET", 4);
@@ -295,6 +295,9 @@ define("INITIAL_NEXT_OFFSET", 4);
 			<option value="price-used-htl">Precio Usado: Mayor a Menor</option>
 		</select>
 	</div>
+	<div id="filter-tag-bar" >
+		
+	</div>
 	<div class="filters-on-off hide-filter-btn">Ver Filtros</div>
 	<div class="all-products-row">
 		<div class="filters-col display-off">
@@ -424,114 +427,197 @@ define("INITIAL_NEXT_OFFSET", 4);
 
 	//stores json from original basic query
 	basicQueryJson = JSON.parse(basicQueryCopy);
-	// console.log(basicQueryJson);
+	console.log(basicQueryJson);
 
 	// -----------------------------when filter is checked---------------->
 	$(document).on("change", ".grab-filter", function(){
-		console.log("you click grabfilter!!!!!");
+		filterType = $(this).attr("filter-type");
 		filterClass = $(this).prop("classList")[0];
-		filterCategory = filterClass.split("-")[0];
 
 		checkedCheckboxes = $("."+filterClass+":checked").length;
-
-		// if no checkbox on filter category is checked reset to original result
-		if(checkedCheckboxes <= 0){
-			if(filterCategory == "platform"){
-				$("#platformFilterContainer").empty().prepend(platformfilterUpdt(basicQueryJson.platform_count, []));
-			}
-			if(filterCategory == "pricerange"){
-				$("#priceFilterContainer").empty().prepend(renderPriceFilter(basicQueryJson.price_new_count, basicQueryJson.price_used_count));
-			}
-			if(filterCategory == "condition"){
-				$("#conditionFilterContainer").empty().prepend(renderConditionFilter(basicQueryJson.new_count, basicQueryJson.used_count, filterParameters.filters_control));
-			}
-			if(filterCategory == "producttype"){
-				$("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(basicQueryJson.producttype_count, []));
-			}
-			if(filterCategory == "studio"){
-				$("#studioFilterContainer").empty().prepend(renderStudioFilter(basicQueryJson.studio, []));
-				// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CONTINUE HERE!!!!!!!!!!!!!
-			}		
-		}
-
-		extra = $(this).attr('name').split("|");
-
-		if(extra[0].includes("platform")){
+		// console.log("filterClass: ", filterClass+":checked");
+		
+		// START OF FILTER-TYPE CHECKBOX EVALUATIONS #######################################################
+		if(filterType == "platform"){
 			platformArr = filterParameters["queries"]["platform"];
-			if(!platformArr.includes(extra[1])){
-				platformArr.push(extra[1]);
+			if(!platformArr.includes($(this).val())){
+				platformArr.push($(this).val());
 				filterParameters["pagination_offset"] = 0;
 			}
 			else{
-				platformArr.splice(platformArr.indexOf(extra[1]), 1);
+				platformArr.splice(platformArr.indexOf($(this).val()), 1);
 				filterParameters["pagination_offset"] = 0;
+			}
+			if(checkedCheckboxes <= 0){
+				$("#platformFilterContainer").empty().prepend(platformfilterUpdt(basicQueryJson.platform_count, []));
 			}	
 		}
-		else if(extra[0].includes("pricerange")){
+		else if(filterType == "price"){
 			pricerangeArr = filterParameters["queries"]["pricerange"];
-			rangePair = [extra[1], extra[2]];
+			priceFilterCtrl = filterParameters["filters_control"]["price_tracker"];
+			rangePair = [$(this).attr("min"), $(this).attr("max"), $(this).attr("qty")];
+			console.log("rangepair: ", rangePair);
 			arrMatchCounter = 0;
 
-			if(pricerangeArr.length == 0){
+			// add filter to filter-tag-bar --------------------------
+			// filterTagBtnHtml = `<button> ${$(this).attr("min")} - ${$(this).attr("max")}</button>`;
+			// $("#filter-tag-bar").append(filterTagBtnHtml);
+
+			// push range pair into pricerangeArr if it is empty
+			if(pricerangeArr.length <= 0){
 				pricerangeArr.push(rangePair);
-				filterParameters["pagination_offset"] = 0;
+				filterParameters["pagination_offset"] = 0; 
 			}
 			else{
+				// checks if range pair is not already in the priceRangeArr
 				pricerangeArr.forEach(function(ele, index, object){
 					if((ele[0] == rangePair[0]) && (ele[1] == rangePair[1])){
 						arrMatchCounter += 1;
-						object.splice(index, 1);
+						object.splice(index, 1);//removes rangepair from pricerangeArr if it is already in it
 					}
 				});
 
 				if(arrMatchCounter < 1){
 					pricerangeArr.push(rangePair);
 				}
-				filterParameters["pagination_offset"] = 0;
+				filterParameters["pagination_offset"] = 0;//dont remember what this is for
+			}
+			if(checkedCheckboxes <= 0){
+				$("#priceFilterContainer").empty().prepend(renderPriceFilter(basicQueryJson.price_new_count, basicQueryJson.price_used_count, filterParameters.queries.pricerange));
 			}
 		}
-		else if(extra[0].includes("condition")){
+		else if(filterType == "condition"){
 			conditionArr = filterParameters["queries"]["condition"];
-			conditionType = extra[1];
+			conditionType = $(this).attr("condition");
+			conditionQty = $(this).attr("qty");
+			rangePair = [conditionType, conditionQty];
+			arrMatchCounter = 0;
 
-			if(!conditionArr.includes(conditionType)){
-				conditionArr.push(conditionType);
-				if(conditionFilterCtrl[conditionType] == true){
-					conditionFilterCtrl[conditionType] = false;
-				}else{
-					conditionFilterCtrl[conditionType] = true;
+			if(conditionArr.length <= 0){
+				conditionArr.push(rangePair);
+				filterParameters["pagination_offset"] = 0; 
+			}
+			else{
+				// checks if range pair is not already in the priceRangeArr
+				conditionArr.forEach(function(ele, index, object){
+					if((ele[0] == rangePair[0])){
+						arrMatchCounter += 1;
+						object.splice(index, 1);//removes rangepair from pricerangeArr if it is already in it
+					}
+				});
+
+				if(arrMatchCounter < 1){
+					conditionArr.push(rangePair);
 				}
+				filterParameters["pagination_offset"] = 0;//dont remember what this is for
 
-				filterParameters["pagination_offset"] = 0;
 			}
-			else{
-				conditionArr.splice(conditionArr.indexOf(extra[1]), 1);
-				filterParameters["pagination_offset"] = 0;
+			// conditionArr.forEach(function(e){
+			// 	console.log("e: ", e);
+			// 	if(!e.includes(conditionType)){
+			// 		conditionSet = [conditionType, conditionQty];
+			// 		console.log("conditionSet: ", conditionSet);
+			// 		conditionArr.push(conditionSet);
+			// 		filterParameters["pagination_offset"] = 0;
+			// 	}
+			// 	else{
+			// 		conditionArr.splice(e.indexOf(conditionType), 1);
+			// 		filterParameters["pagination_offset"] = 0;
+			// 	}
+			// });
+			console.log(filterParameters["queries"]);
+			// if(!conditionArr.includes(conditionType)){
+			// 	conditionArr.push([conditionType, conditionQty]);
+			// 	console.log(filterParameters["queries"]);
+			// 	filterParameters["pagination_offset"] = 0;
+			// }
+			// else{
+			// 	conditionArr.splice(conditionArr.indexOf(conditionType), 1);
+			// 	filterParameters["pagination_offset"] = 0;
+			// }
+			if(checkedCheckboxes <= 0){
+				// $("#conditionFilterContainer").empty().prepend(renderConditionFilter(basicQueryJson.new_count, basicQueryJson.used_count, filterParameters.filters_control));
+				// 	console.log("fired checked boxes empty!!!!");
+				// 	return;
+				$.ajax({
+					url: "/gameliquidators/includes/product-fetcher.php",
+					method:"POST",
+					dataType:"json",
+					contentType:"application/json; charset=utf-8",
+					data: JSON.stringify(filterParameters),
+					success:function(data){
+						console.log(" hello from inside ajax, execute condition when checkboxes clear");
+						console.log(data);
+						$(".basic-search-cont").empty();
+						$(".basic-search-cont").prepend(genFilterProductsHtml(data));
+
+						$(".pagination").empty();
+						$(".pagination").prepend(genPagination(data, PRODUCTS_PER_PAGE));
+						// if(extra[0] != "platform"){
+						// 	$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
+						// }
+
+						$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries));
+
+						// does not render checkboxes if they have 1 or less products
+						// if(data.new_count.length > 1 && data.used_count.length > 1){
+						// 	$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries.condition));
+						// }else{
+						// 	$("#conditionFilterContainer").empty();
+						// }
+						console.log("filterParameters.queries.pricerange at zero check: ", filterParameters.queries.pricerange);
+						if(filterType != "price"){
+							$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count, filterParameters.queries.pricerange));
+						}
+
+						if(filterType != "studio"){
+							$("#studioFilterContainer").empty().prepend(renderStudioFilter(data.studio, filterParameters.queries.studio));
+						}
+						// if(extra[0] != "producttype"){
+						// 	console.log("product type: ");
+						// 	$("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(data.producttype_count, filterParameters.queries.producttype));
+						// }
+					},
+					error: function (request, status, error) {
+					    alert(error);
+					}
+				});
+				return;
 			}
 		}
-		else if(extra[0].includes("producttype")){
+		else if(filterType == "producttype"){
 			producttypeArr = filterParameters["queries"]["producttype"];
-			if(!producttypeArr.includes(extra[1])){
-				producttypeArr.push(extra[1]);
+			productType = $(this).val();
+			if(!producttypeArr.includes(productType)){
+				producttypeArr.push(productType);
 				filterParameters["pagination_offset"] = 0;
 			}
 			else{
-				producttypeArr.splice(producttypeArr.indexOf(extra[1]), 1);
+				producttypeArr.splice(producttypeArr.indexOf(productType), 1);
 				filterParameters["pagination_offset"] = 0;
 			}
+			if(checkedCheckboxes <= 0){
+				$("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(basicQueryJson.producttype_count, []));
+			}
 		}
-		else if(extra[0].includes("studio")){
+		else if(filterType == "studio"){
 			studioArr = filterParameters["queries"]["studio"];
-			if(!studioArr.includes(extra[1])){
-				studioArr.push(extra[1]);
+			productStudio = $(this).attr("name");
+			if(!studioArr.includes(productStudio)){
+				studioArr.push(productStudio);
 				filterParameters["pagination_offset"] = 0;
 			}
+			else{
+				studioArr.splice(studioArr.indexOf(productStudio), 1);
+				filterParameters["pagination_offset"] = 0;
+			}
+			if(checkedCheckboxes <= 0){
+				$("#studioFilterContainer").empty().prepend(renderStudioFilter(basicQueryJson.studio, []));
+			}
 		}
+		// END OF FILTER-TYPE CHECKBOX EVALUATIONS #######################################################
 
-		if(checkedCheckboxes <= 0){
-			console.log("no checks");
-			filterParameters["queries"][filterCategory] = [];
-		}
+
 		$.ajax({
 			url: "/gameliquidators/includes/product-fetcher.php",
 			method:"POST",
@@ -540,7 +626,6 @@ define("INITIAL_NEXT_OFFSET", 4);
 			data: JSON.stringify(filterParameters),
 			success:function(data){
 				console.log(data);
-
 				$(".basic-search-cont").empty();
 				$(".basic-search-cont").prepend(genFilterProductsHtml(data));
 
@@ -549,11 +634,13 @@ define("INITIAL_NEXT_OFFSET", 4);
 				// if(extra[0] != "platform"){
 				// 	$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
 				// }
-				if(extra[0] != "pricerange"){
-					$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count));
+				
+				if(filterType != "price"){
+					$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count, filterParameters.queries.pricerange));
 				}
-				if(extra[0] != "condition"){
-					$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.filters_control));
+				if(filterType != "condition"){
+					$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries));
+					console.log("fired checked from ajax!!!");
 
 					// does not render checkboxes if they have 1 or less products
 					// if(data.new_count.length > 1 && data.used_count.length > 1){
@@ -562,12 +649,10 @@ define("INITIAL_NEXT_OFFSET", 4);
 					// 	$("#conditionFilterContainer").empty();
 					// }
 				}
-				if(extra[0] != "condition"){
-
-				}
-				if(extra[0] != "studio"){
+				if(filterType != "studio"){
 					$("#studioFilterContainer").empty().prepend(renderStudioFilter(data.studio, filterParameters.queries.studio));
 				}
+				console.log("hello from main ajax, queries right after condition: ", filterParameters["queries"]);
 				// if(extra[0] != "producttype"){
 				// 	console.log("product type: ");
 				// 	$("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(data.producttype_count, filterParameters.queries.producttype));
@@ -577,40 +662,29 @@ define("INITIAL_NEXT_OFFSET", 4);
 			    alert(error);
 			}
 		});
-
-		console.log(filterParameters);
-
-
 	});
 
-	$(document).on("click", ".selectpage", function(){
-		filterParameters["pagination_offset"] = $(this).attr("pageoffset");
-		$.ajax({
-			url: "/gameliquidators/includes/product-fetcher.php",
-			method:"POST",
-			dataType:"json",
-			contentType:"application/json; charset=utf-8",
-			data: JSON.stringify(filterParameters),
-			success:function(data){
-				console.log(data);
-				$( ".basic-search-cont" ).empty();
-				$( ".basic-search-cont" ).prepend(genFilterProductsHtml(data));
-				$( ".pagination" ).empty();
-				$( ".pagination" ).prepend(genPagination(data, PRODUCTS_PER_PAGE));
-				// $("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
-				// $("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count));
-				// $("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count));
-				// $("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(data.producttype_count, filterParameters.queries.producttype));
-
-				// $("#data-store").data("title-query", data.filters);
-				// console.log($("#data-store").data("title-query"));
-			},
-			error: function (request, status, error) {
-			    alert(error);
-			}
-		});
-		console.log(filterParameters);
-	});
+	// $(document).on("click", ".selectpage", function(){
+	// 	filterParameters["pagination_offset"] = $(this).attr("pageoffset");
+	// 	$.ajax({
+	// 		url: "/gameliquidators/includes/product-fetcher.php",
+	// 		method:"POST",
+	// 		dataType:"json",
+	// 		contentType:"application/json; charset=utf-8",
+	// 		data: JSON.stringify(filterParameters),
+	// 		success:function(data){
+	// 			console.log(data);
+	// 			$( ".basic-search-cont" ).empty();
+	// 			$( ".basic-search-cont" ).prepend(genFilterProductsHtml(data));
+	// 			$( ".pagination" ).empty();
+	// 			$( ".pagination" ).prepend(genPagination(data, PRODUCTS_PER_PAGE));
+	// 		},
+	// 		error: function (request, status, error) {
+	// 		    alert(error);
+	// 		}
+	// 	});
+	// 	console.log(filterParameters);
+	// });
 
 	// sort by selected dropdown menu criteria
 	$(document).on("change", "#sort-criteria", function(){
@@ -718,16 +792,16 @@ define("INITIAL_NEXT_OFFSET", 4);
 			}
 		    if (platformObj.hasOwnProperty(key)) {
 		        platformHTML += "<div>";
-		        platformHTML += 	"<input type='checkbox' name='platform|" + key + "' value='" + platformObj[key] + "'class='platform-filter grab-filter' filter-name='" + key + "' " + checked + ">";
-		        platformHTML += 	"<span> "+ key +" (" + platformObj[key] + ")</span>";
+		        platformHTML += 	`<input type='checkbox' name='platform-${key}' value='${platformObj[key]}' class='platform-filter grab-filter' filter-name='${key}' filter-type='platform' ${checked}>`;
+		        platformHTML += 	`<span> ${key} (${platformObj[key]})</span>`;
 		        platformHTML += "</div>";
 		    }
 		}
 		return platformHTML;
 	}
 
-	function renderPriceFilter(newPriceArr, usedPriceArr){
-		rangeHtml = "";
+	function renderPriceFilter(newPriceArr, usedPriceArr, priceRangeObj){
+		console.log("priceArrangeObj from renderPriceFilter: ", priceRangeObj);
 		if(newPriceArr == undefined){
 			return rangeHtml;
 		}
@@ -741,12 +815,12 @@ define("INITIAL_NEXT_OFFSET", 4);
 
 		if(fullPriceRangeArr.length > 0){
 			fullPriceRangeArr = fullPriceRangeArrStr.sort((a, b) => a - b);
-			return getRanges(fullPriceRangeArr);
+			return getRanges(fullPriceRangeArr, priceRangeObj);
 		}
 
 	}
 
-	function getRanges(productPrices){
+	function getRanges(productPrices, priceRangeObj){
 		arr_zero_fiftho = []; 
 		arr_fiftho_hundtho = []; 
 		arr_hundtho_twohundtho = []; 
@@ -783,48 +857,62 @@ define("INITIAL_NEXT_OFFSET", 4);
 			}
 		});
 
+		allRanges = [];
 		priceFilterHtml = "";
 
 		if(arr_zero_fiftho.length){
-			allRanges = rangeMaker(arr_zero_fiftho, 0, 10000, 50000, 10000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_zero_fiftho, 0, 10000, 50000, 10000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
 		if(arr_fiftho_hundtho.length){
-			allRanges = rangeMaker(arr_fiftho_hundtho, 50000, 75000, 100000, 25000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_fiftho_hundtho, 50000, 75000, 100000, 25000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
 		if(arr_hundtho_twohundtho.length){
-			allRanges = rangeMaker(arr_hundtho_twohundtho, 100000, 150000, 200000, 50000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_hundtho_twohundtho, 100000, 150000, 200000, 50000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
 		if(arr_twohundtho_fivehundtho.length){
-			allRanges = rangeMaker(arr_twohundtho_fivehundtho, 200000, 300000, 500000, 100000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_twohundtho_fivehundtho, 200000, 300000, 500000, 100000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
 		if(arr_fivehundtho_onemill.length){
-			allRanges = rangeMaker(arr_fivehundtho_onemill, 500000, 750000, 1000000, 250000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_fivehundtho_onemill, 500000, 750000, 1000000, 250000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
 		if(arr_onemill_twomill.length){
-			allRanges = rangeMaker(arr_onemill_twomill, 1000000, 1250000, 2000000, 250000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_onemill_twomill, 1000000, 1250000, 2000000, 250000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
 		if(arr_twomill_fivemill.length){
-			allRanges = rangeMaker(arr_twomill_fivemill, 2000000, 3000000, 5000000, 1000000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_twomill_fivemill, 2000000, 3000000, 5000000, 1000000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
 		if(arr_fivemill_tenmill.length){
-			allRanges = rangeMaker(arr_fivemill_tenmill, 5000000, 7500000, 10000000, 2500000);
-			priceFilterHtml += writeRangeCheckbox(allRanges);
-			console.log(allRanges);
+			momentRange = rangeMaker(arr_fivemill_tenmill, 5000000, 7500000, 10000000, 2500000);
+			momentRange.forEach(function(e){
+				allRanges.push(e);
+			});
 		}
+
+		console.log("priceRangeObj from get ranges: ", priceRangeObj);
+		tempArr = sortArray(allRanges, priceRangeObj);
+		priceFilterHtml += writeRangeCheckbox(tempArr, priceRangeObj);
+
 		return priceFilterHtml;
 	}
 
@@ -850,29 +938,137 @@ define("INITIAL_NEXT_OFFSET", 4);
 		return mainRangeArr;
 	}
 
-	function writeRangeCheckbox(rangeArr){
+	function writeRangeCheckbox(rangeArr, priceRangeObj){
 		rangeHtml = "";
 
-		rangeArr.forEach(function(range){
-			start = decimalSeparator(range['start']);
-			end = decimalSeparator(range['end']);
-			rangeHtml += "<div>";
-			rangeHtml += 	`<input type='checkbox' name='pricerange|${range['start']}|${range['end']}' value='${range['start']}' class='pricerange-filter grab-filter' filter-name='${range['start']}-${range['end']}'>`;
-			rangeHtml += 	`<span> \$${start} - \$${end} (${range['qty']})</span>`;
-			rangeHtml += "</div>";
-		});
+		if (!(rangeArr === undefined || rangeArr.length == 0)){
+			rangeArr.forEach(function(range){
+				start = decimalSeparator(range['start']);
+				end = decimalSeparator(range['end']);
+				checkedBool = range["checked"];
+				checked = "";
+
+				if(checkedBool){
+					checked = "checked";
+				}
+
+				rangeHtml += "<div>";
+				rangeHtml += 	`<input type='checkbox' name='pricerange-${range['start']}-${range['end']}' value='${range['start']}' class='pricerange-filter grab-filter' min='${range['start']}' max='${range['end']}' filter-type='price' ${checked} qty='${range['qty']}'>`;
+				rangeHtml += 	`<span> \$${start} - \$${end} (${range['qty']})</span>`;
+				rangeHtml += "</div>";
+				checked = "";
+
+			});
+		}
 		return rangeHtml;
 	}
+
+	function sortArray(inpArr, priceRangeObj){
+	    newArr = [];
+	    inpArr.forEach(function(e){
+	        newArr.push([parseInt(e["start"], 10), parseInt(e["end"], 10), e["qty"].toString()]);
+	    });
+	    console.log("priceRangeObj: ", priceRangeObj);
+
+	    if(priceRangeObj != undefined){ //prevents error when all checkboxes are cleared
+	    	priceRangeObj.forEach(function(e){
+	    		console.log("e: ", e);
+	    		newArr.push([parseInt(e[0], 10), parseInt(e[1], 10), e[2].toString()]);
+	    	});
+	    }
+
+	    var uniques = [];
+	    var itemsFound = {};
+
+	    for(var i = 0, l = newArr.length; i < l; i++) {
+	        var stringified = newArr[i][0];
+	        if(itemsFound[stringified]) { continue; }
+
+	        start = newArr[i][0];
+	        end = newArr[i][1];
+	        qty = newArr[i][2];
+	        checked = false;
+
+	        subArray = [];
+	        subArray["checked"] = checked;
+			subArray["start"] = start;
+			subArray["end"] = end;
+			subArray["qty"] = qty;
+
+	        uniques.push(subArray);
+	        itemsFound[stringified] = true;
+	    }
+
+	    if(priceRangeObj != undefined){ //prevents error when all checkboxes are cleared
+	    	uniques.forEach(function(e){
+	    	    priceRangeObj.forEach(function(f){
+	    	        if(e["start"] == f[0] && e["end"] == f[1])
+	    	        {
+	    	            e["checked"] = true;
+	    	        }
+	    	    })
+	    	});
+	    }
+
+	    uniques.sort(sortFunction);
+	    return uniques;
+	}
+
+	function sortFunction(a, b) {
+	    if (a["start"] === b["start"]) {
+	        return 0;
+	    }
+	    else {
+	        return (a["start"] < b["start"]) ? -1 : 1;
+	    }
+	}
+
+
 	// ---------------END PRICE RANGE FILTER ----------------------------------
 
 	function renderConditionFilter(newGameArr, usedGameArr, filterControl){
-		console.log(filterControl.condition_tracker);
 		conditionHtml = "";
 		newCounter = 0;
 		usedCounter = 0;
 
-		isNewChecked = filterControl.condition_tracker.new;
-		isUsedChecked = filterControl.condition_tracker.used;
+		isNewChecked = false;
+		isUsedChecked = false;
+
+		console.log("filtercontrol condition: ", filterControl);
+		// console.log("filtercontrol new: ", filterControl.condition[0]);
+		// console.log("filtercontrol used: ", filterControl.condition[1]);
+
+		if(filterControl.condition.length > 0){
+			filterControl.condition.forEach(function(e){
+				if(e[0] == "new"){
+					isNewChecked = true;
+					
+				}
+				if(e[0] == "used"){
+					isUsedChecked = true;
+
+				}
+			});
+		}
+		console.log("isNewChecked: ", isNewChecked);
+		console.log("isUsedChecked: ", isUsedChecked);
+
+		// if(filterControl.condition[0] != undefined){
+		// 	isNewChecked = true;
+		// 	console.log("isNewChecked: ", isNewChecked);
+		// }
+		// if(filterControl.condition[1] != undefined){
+		// 	isUsedChecked = true;
+		// 	console.log("isUsedChecked: ", isUsedChecked);
+		// }
+		// if(filterParameters.queries.condition[0] != undefined){
+		// 	isNewChecked = true;
+		// 	console.log("isNewChecked: ", isNewChecked);
+		// }
+		// if(filterParameters.queries.condition[1] != undefined){
+		// 	isUsedChecked = true;
+		// 	console.log("isUsedChecked: ", isUsedChecked);
+		// }
 
 		checkNew = "";
 		checkUsed = "";
@@ -881,41 +1077,46 @@ define("INITIAL_NEXT_OFFSET", 4);
 		newDisabled = "";
 
 
-		if(newGameArr == undefined){
+		if(newGameArr == undefined && usedGameArr == undefined){
 			return "";
 		}
 
+		console.log("newGameArr: ", newGameArr);
 		newGameArr.forEach(function(e){
 			if(e > 0){
 				newCounter ++;
 			}
 		});
+
+		console.log("usedGameArr: ", usedGameArr);
 		usedGameArr.forEach(function(e){
 			if(e > 0){
 				usedCounter ++;
 			}
 		});
-		if(usedCounter == 0){
-			newDisabled = "disabled";
-		}
-		if(newCounter == 0){
-			usedDisabled = "disabled";
-		}
-		// if(isNewChecked){
-		// 	checkNew = "checked";
+		// if(usedCounter == 0){
+		// 	newDisabled = "disabled";
 		// }
-		// if(isUsedChecked){
-		// 	checkUsed = "checked";
+		// if(newCounter == 0){
+		// 	usedDisabled = "disabled";
 		// }
+		if(isNewChecked){
+			checkNew = "checked";
+		}
+		if(isUsedChecked){
+			checkUsed = "checked";
+		}
+		console.log("newCounter: ", newCounter);
 		if(newCounter > 0){
 			conditionHtml += "<div>";
-			conditionHtml +=	`<input type='checkbox' name='condition|new' filter-name='new' class='condition-filter grab-filter ${newDisabled}' ${newDisabled} ${checkNew}>`;
+			conditionHtml +=	`<input type='checkbox' name='condition-new' filter-name='new' class='condition-filter grab-filter ${newDisabled}' condition='new' filter-type='condition' qty='${newCounter}' ${newDisabled} ${checkNew} >`;
 			conditionHtml +=	"<span> New ("+newCounter+")</span>"
 			conditionHtml += "</div>";
 		}
+		console.log("usedCounter: ", usedCounter);
 		if(usedCounter > 0){
 			conditionHtml += "<div>";
-			conditionHtml +=	`<input type='checkbox' name='condition|used' filter-name='used' class='condition-filter grab-filter ${usedDisabled}' ${usedDisabled} ${checkUsed}>`;
+			conditionHtml +=	`<input type='checkbox' name='condition-used' filter-name='used' class='condition-filter grab-filter ${usedDisabled}' condition='used' filter-type='condition' qty='${usedCounter}' ${usedDisabled} ${checkUsed} >`;
 			conditionHtml +=	"<span> Used ("+usedCounter+")</span>"
 			conditionHtml += "</div>";
 		}
@@ -945,8 +1146,8 @@ define("INITIAL_NEXT_OFFSET", 4);
 			if(productTypeObj.hasOwnProperty(key)) {
 				productTypeHTML += "<div>";
 				// productTypeHTML += 	"<input type='checkbox' name='producttype|" + key + "' value='" + productTypeObj[key] + "'class='producttype-filter grab-filter' filter-name='" + key + "' >";
-				productTypeHTML += 	"<input type='checkbox' name='producttype|" + key + "' value='" + productTypeObj[key] + "'class='producttype-filter grab-filter' filter-name='" + key + "' " + checked + ">";
-				productTypeHTML += 	"<span> "+ key +" (" + productTypeObj[key] + ")</span>";
+				productTypeHTML += 	`<input type='checkbox' name='producttype-${key}' value='${productTypeObj[key]}' class='producttype-filter grab-filter' filter-name='${key}' filter-type='producttype' qty='${productTypeObj[key]}' ${checked}>`;
+				productTypeHTML += 	`<span>${key} (${productTypeObj[key]})</span>`;
 				productTypeHTML += "</div>"
 		    }
 		}
@@ -976,7 +1177,7 @@ define("INITIAL_NEXT_OFFSET", 4);
 			}
 		    if(studioObj.hasOwnProperty(key)) {
 		        productStudioHtml += "<div>";
-		        productStudioHtml += 	"<input type='checkbox' name='studio|" + key + "' value='" + studioObj[key] + "'class='studio-filter grab-filter' filter-name='" + key + "' " + checked + ">";
+		        productStudioHtml += 	`<input type='checkbox' name='${key}' value='${studioObj[key]}' class='studio-filter grab-filter' filter-type='studio' ${checked}>`;
 		        productStudioHtml += 	"<span> "+ key +" (" + studioObj[key] + ")</span>";
 		        productStudioHtml += "</div>";
 		    }
@@ -1020,7 +1221,8 @@ define("INITIAL_NEXT_OFFSET", 4);
 	}
 	function decimalSeparator(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
+    	// return x.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	}
 </script>
 </body>
 </html>
