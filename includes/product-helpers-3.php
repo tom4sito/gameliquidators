@@ -306,7 +306,7 @@ function renderStudioFilter($db, $platform, $productType, $column){
 
 		foreach ($productStudio as $key => $value) {
 			$productStudioHtml .= "<div>";
-			$productStudioHtml .= 	"<input type='checkbox' name='{$key}' value='{$value}' class='studio-filter grab-filter' filter-type='studio' >";
+			$productStudioHtml .= 	"<input type='checkbox' name='{$key}' value='{$value}' class='studio-filter grab-filter' filter-type='studio' qty='{$value}'>";
 			$productStudioHtml .= 	"<span> {$key} ({$value})</span>";
 			$productStudioHtml .= "</div>";
 		}

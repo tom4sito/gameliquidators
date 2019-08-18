@@ -266,6 +266,20 @@ define("INITIAL_NEXT_OFFSET", 4);
 <div>
 <?php include($includes_dir."navbar.php"); ?>
 </div>
+<!-- <div class="sort-bar">
+	Ordenar Por: 
+	<select name="sort-criteria" id="sort-criteria">
+		<option value="" selected disabled hidden>Escoge Criterio de Orden</option>
+		<option value="title-lth">Titulo: A-Z</option>
+		<option value="title-htl">Titulo: Z-A</option>
+		<option value="year-lth">Año: Menor a Mayor</option>
+		<option value="year-htl">Año: Mayor a Menor </option>
+		<option value="price-new-lth">Precio Nuevo: Menor a Mayor</option>
+		<option value="price-new-htl">Precio Nuevo: Mayor a Menor</option>
+		<option value="price-used-lth">Precio Usado: Menor a Mayor</option>
+		<option value="price-used-htl">Precio Usado: Mayor a Menor</option>
+	</select>
+</div> -->
 <div class="main-container">
 	<div class="sort-bar">
 		Ordenar Por: 
@@ -358,7 +372,15 @@ define("INITIAL_NEXT_OFFSET", 4);
 		"pagination_offset": 0,
 		"products_per_page": PRODUCTS_PER_PAGE,
 		"order_by": "",
-		"asc_desc": ""
+		"asc_desc": "",
+		"filters_control": {
+			"price_tracker": [],
+			"condition_tracker": {
+				"new": false,
+				"used": false
+			},
+			"maker_tracker": []
+		}
 	};
 
 	//show hide filters
@@ -431,6 +453,7 @@ define("INITIAL_NEXT_OFFSET", 4);
 		}
 		else if(filterType == "price"){
 			pricerangeArr = filterParameters["queries"]["pricerange"];
+			priceFilterCtrl = filterParameters["filters_control"]["price_tracker"];
 			rangePair = [$(this).attr("min"), $(this).attr("max"), $(this).attr("qty")];
 			arrMatchCounter = 0;
 
@@ -454,6 +477,35 @@ define("INITIAL_NEXT_OFFSET", 4);
 				filterParameters["pagination_offset"] = 0;//dont remember what this is for
 			}
 			if(checkedCheckboxes <= 0){
+				// $.ajax({
+				// 	url: "/gameliquidators/includes/product-fetcher.php",
+				// 	method:"POST",
+				// 	dataType:"json",
+				// 	contentType:"application/json; charset=utf-8",
+				// 	data: JSON.stringify(filterParameters),
+				// 	success:function(data){
+				// 		console.log(" hello from inside ajax, execute condition when checkboxes clear");
+				// 		console.log(data);
+				// 		$(".basic-search-cont").empty();
+				// 		$(".basic-search-cont").prepend(genFilterProductsHtml(data));
+
+				// 		$(".pagination").empty();
+				// 		$(".pagination").prepend(genPagination(data, PRODUCTS_PER_PAGE));
+
+
+				// 		$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count, filterParameters.queries.pricerange));
+
+				// 		if(filterType != "condition"){
+				// 			$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries));
+				// 		}		
+				// 		if(filterType != "studio"){
+				// 			$("#studioFilterContainer").empty().prepend(renderStudioFilter(data.studio, filterParameters.queries.studio));
+				// 		}
+				// 	},
+				// 	error: function (request, status, error) {
+				// 	    alert(error);
+				// 	}
+				// });
 				ajaxZeroBoxChecked(filterParameters, PRODUCTS_PER_PAGE);
 				return;
 			}
@@ -485,6 +537,36 @@ define("INITIAL_NEXT_OFFSET", 4);
 
 			}
 			if(checkedCheckboxes <= 0){
+				// $.ajax({
+				// 	url: "/gameliquidators/includes/product-fetcher.php",
+				// 	method:"POST",
+				// 	dataType:"json",
+				// 	contentType:"application/json; charset=utf-8",
+				// 	data: JSON.stringify(filterParameters),
+				// 	success:function(data){
+				// 		console.log(" hello from inside ajax, execute condition when checkboxes clear");
+				// 		console.log(data);
+				// 		$(".basic-search-cont").empty();
+				// 		$(".basic-search-cont").prepend(genFilterProductsHtml(data));
+
+				// 		$(".pagination").empty();
+				// 		$(".pagination").prepend(genPagination(data, PRODUCTS_PER_PAGE));
+
+				// 		$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries));
+
+				// 		console.log("filterParameters.queries.pricerange at zero check: ", filterParameters.queries.pricerange);
+				// 		if(filterType != "price"){
+				// 			$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count, filterParameters.queries.pricerange));
+				// 		}
+
+				// 		if(filterType != "studio"){
+				// 			$("#studioFilterContainer").empty().prepend(renderStudioFilter(data.studio, filterParameters.queries.studio));
+				// 		}
+				// 	},
+				// 	error: function (request, status, error) {
+				// 	    alert(error);
+				// 	}
+				// });
 				ajaxZeroBoxChecked(filterParameters, PRODUCTS_PER_PAGE);
 				return;
 			}
@@ -519,6 +601,36 @@ define("INITIAL_NEXT_OFFSET", 4);
 				filterParameters["pagination_offset"] = 0;
 			}
 			if(checkedCheckboxes <= 0){
+				// $("#studioFilterContainer").empty().prepend(renderStudioFilter(basicQueryJson.studio, []));
+				// $.ajax({
+				// 	url: "/gameliquidators/includes/product-fetcher.php",
+				// 	method:"POST",
+				// 	dataType:"json",
+				// 	contentType:"application/json; charset=utf-8",
+				// 	data: JSON.stringify(filterParameters),
+				// 	success:function(data){
+				// 		console.log(" hello from inside ajax, execute condition when checkboxes clear");
+				// 		console.log(data);
+				// 		$(".basic-search-cont").empty();
+				// 		$(".basic-search-cont").prepend(genFilterProductsHtml(data));
+
+				// 		$(".pagination").empty();
+				// 		$(".pagination").prepend(genPagination(data, PRODUCTS_PER_PAGE));
+
+				// 		console.log("filterParameters.queries.pricerange at zero check: ", filterParameters.queries.pricerange);
+				// 		if(filterType != "price"){
+				// 			$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count, filterParameters.queries.pricerange));
+				// 		}
+				// 		if(filterType != "condition"){
+				// 			$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries));
+				// 		}
+
+				// 		$("#studioFilterContainer").empty().prepend(renderStudioFilter(data.studio, filterParameters.queries.studio));
+				// 	},
+				// 	error: function (request, status, error) {
+				// 	    alert(error);
+				// 	}
+				// });
 				ajaxZeroBoxChecked(filterParameters, PRODUCTS_PER_PAGE);
 				return;
 			}
@@ -539,16 +651,32 @@ define("INITIAL_NEXT_OFFSET", 4);
 
 				$(".pagination").empty();
 				$(".pagination").prepend(genPagination(data, PRODUCTS_PER_PAGE));
+				// if(extra[0] != "platform"){
+				// 	$("#platformFilterContainer").empty().prepend(platformfilterUpdt(data.platform_count, filterParameters.queries.platform));
+				// }
 				
 				if(filterType != "price"){
 					$("#priceFilterContainer").empty().prepend(renderPriceFilter(data.price_new_count, data.price_used_count, filterParameters.queries.pricerange));
 				}
 				if(filterType != "condition"){
 					$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries));
+					console.log("fired checked from ajax!!!");
+
+					// does not render checkboxes if they have 1 or less products
+					// if(data.new_count.length > 1 && data.used_count.length > 1){
+					// 	$("#conditionFilterContainer").empty().prepend(renderConditionFilter(data.new_count, data.used_count, filterParameters.queries.condition));
+					// }else{
+					// 	$("#conditionFilterContainer").empty();
+					// }
 				}
 				if(filterType != "studio"){
 					$("#studioFilterContainer").empty().prepend(renderStudioFilter(data.studio, filterParameters.queries.studio));
 				}
+				console.log("hello from main ajax, queries right after condition: ", filterParameters["queries"]);
+				// if(extra[0] != "producttype"){
+				// 	console.log("product type: ");
+				// 	$("#producttypeFilterContainer").empty().prepend(renderProductTypeFilter(data.producttype_count, filterParameters.queries.producttype));
+				// }
 			},
 			error: function (request, status, error) {
 			    alert(error);
@@ -556,30 +684,29 @@ define("INITIAL_NEXT_OFFSET", 4);
 		});
 	});
 
-	// move to next or previous page pagination event -----------------------------
-	$(document).on("click", ".selectpage", function(){
-		filterParameters["pagination_offset"] = $(this).attr("pageoffset");
-		$.ajax({
-			url: "/gameliquidators/includes/product-fetcher.php",
-			method:"POST",
-			dataType:"json",
-			contentType:"application/json; charset=utf-8",
-			data: JSON.stringify(filterParameters),
-			success:function(data){
-				console.log(data);
-				$( ".basic-search-cont" ).empty();
-				$( ".basic-search-cont" ).prepend(genFilterProductsHtml(data));
-				$( ".pagination" ).empty();
-				$( ".pagination" ).prepend(genPagination(data, PRODUCTS_PER_PAGE));
-			},
-			error: function (request, status, error) {
-			    alert(error);
-			}
-		});
-		console.log(filterParameters);
-	});
+	// $(document).on("click", ".selectpage", function(){
+	// 	filterParameters["pagination_offset"] = $(this).attr("pageoffset");
+	// 	$.ajax({
+	// 		url: "/gameliquidators/includes/product-fetcher.php",
+	// 		method:"POST",
+	// 		dataType:"json",
+	// 		contentType:"application/json; charset=utf-8",
+	// 		data: JSON.stringify(filterParameters),
+	// 		success:function(data){
+	// 			console.log(data);
+	// 			$( ".basic-search-cont" ).empty();
+	// 			$( ".basic-search-cont" ).prepend(genFilterProductsHtml(data));
+	// 			$( ".pagination" ).empty();
+	// 			$( ".pagination" ).prepend(genPagination(data, PRODUCTS_PER_PAGE));
+	// 		},
+	// 		error: function (request, status, error) {
+	// 		    alert(error);
+	// 		}
+	// 	});
+	// 	console.log(filterParameters);
+	// });
 
-	// sort by selected dropdown menu criteria -----------------------------
+	// sort by selected dropdown menu criteria
 	$(document).on("change", "#sort-criteria", function(){
 		sortBy = $(this).val();
 		if(sortBy == "title-lth"){
@@ -632,8 +759,6 @@ define("INITIAL_NEXT_OFFSET", 4);
 		});
 	})
 
-
-	// FILTER RENDERING FUNCTIONS START HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	function genFilterProductsHtml(jsonProducts){
 		product_html = "";
 		if (typeof jsonProducts.products === "undefined"){
@@ -655,6 +780,7 @@ define("INITIAL_NEXT_OFFSET", 4);
 			product_html +=				`<div class='product-thumb-price'>Usado: <span class='bold-text'> $${productsData.price_used }<span></div>`;
 			product_html +=				`<div class='product-thumb-price'>Nuevo: <span class='bold-text'> $${productsData.price_new}<span></div>`;
 			product_html +=				"<div class='product-thumb-studio'>";
+			// $product_html .=					"<span class='thumb-product-stock'>Fabricante: </span> ";
 			product_html +=					`Fabricante: <span class='bold-text'> ${productsData.studio}</span>`;
 			product_html +=				"</div>";
 			product_html +=			"</div>";
@@ -928,6 +1054,10 @@ define("INITIAL_NEXT_OFFSET", 4);
 		isNewChecked = false;
 		isUsedChecked = false;
 
+		console.log("filtercontrol condition: ", filterControl);
+		// console.log("filtercontrol new: ", filterControl.condition[0]);
+		// console.log("filtercontrol used: ", filterControl.condition[1]);
+
 		if(filterControl.condition.length > 0){
 			filterControl.condition.forEach(function(e){
 				if(e[0] == "new"){
@@ -940,6 +1070,25 @@ define("INITIAL_NEXT_OFFSET", 4);
 				}
 			});
 		}
+		console.log("isNewChecked: ", isNewChecked);
+		console.log("isUsedChecked: ", isUsedChecked);
+
+		// if(filterControl.condition[0] != undefined){
+		// 	isNewChecked = true;
+		// 	console.log("isNewChecked: ", isNewChecked);
+		// }
+		// if(filterControl.condition[1] != undefined){
+		// 	isUsedChecked = true;
+		// 	console.log("isUsedChecked: ", isUsedChecked);
+		// }
+		// if(filterParameters.queries.condition[0] != undefined){
+		// 	isNewChecked = true;
+		// 	console.log("isNewChecked: ", isNewChecked);
+		// }
+		// if(filterParameters.queries.condition[1] != undefined){
+		// 	isUsedChecked = true;
+		// 	console.log("isUsedChecked: ", isUsedChecked);
+		// }
 
 		checkNew = "";
 		checkUsed = "";
@@ -1062,11 +1211,7 @@ define("INITIAL_NEXT_OFFSET", 4);
 		}
 		return productStudioHtml;
 	}
-	// FILTER RENDERING FUNCTIONS END HERE !!!!!!!!!!!!!!!!!!!!!------------------------
 
-	// AUXILIARY FUNCTIONS START HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// function to render pagination
 	function genPagination(pageObj, productsPerPage){
 		paginationHtml = "";
 		if(pageObj['num_of_products'] == undefined){
@@ -1078,30 +1223,29 @@ define("INITIAL_NEXT_OFFSET", 4);
 		if(numOfPages <= 1){
 			return "";
 		}
-		
 		lastOffSet = (numOfPages - 1) * productsPerPage;
+
 		previousPage = pageObj['prev_page'] >= 0 ? pageObj['prev_page'] : 0;
 		nextPage = pageObj['next_page'] >= lastOffSet ? lastOffSet : pageObj['next_page'];
 		currentPage = pageObj['current_page'];
+		console.log(currentPage);
 		selected = "";
 
 
-		paginationHtml += `<a href='#' class='selectpage pagination-previous' pageoffset='${previousPage}'><span>&laquo; Previo &nbsp;</span></a>`;
+		paginationHtml += "<a href='#' class='selectpage pagination-previous' pageoffset='" +previousPage+ "'><span>&laquo; Previo &nbsp;</span></a>";
 		paginationHtml += "<div class='pagination-pages'>";
 		for (var i = 1; i <= numOfPages; i++ ){
-			pageOffset = (i - 1) * productsPerPage;
-
-			if(pageOffset == currentPage){
+			if(((i - 1) * productsPerPage) == currentPage){
 				selected = " selected-page";
 			}
-			paginationHtml += `<a href='#' class='selectpage ${selected}' pageoffset='${pageOffset}'> ${i} </a>`;
+			paginationHtml += "<a href='#' class='selectpage "+selected+"' pageoffset='" + (i - 1) * productsPerPage + "'> " + i + " </a>";
 			selected = "";
 		}
 		paginationHtml += "</div>";
-		paginationHtml += `<a href='#' class='selectpage pagination-next' pageoffset='${nextPage}'><span> &nbsp; Siguiente &raquo;</span></a>`;
+		paginationHtml += "<a href='#' class='selectpage pagination-next' pageoffset='" +nextPage+ "'><span> &nbsp; Siguiente &raquo;</span></a>";
+		console.log("nextpage: " + nextPage)
 		return paginationHtml;
 	}
-
 	function decimalSeparator(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     	// return x.replace(/\B(?=(\d{3})+(?!\d))/g, ".");

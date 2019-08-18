@@ -10,7 +10,7 @@ if(isset($_REQUEST["term"])){
     // $param_product = $_REQUEST["type"];
 
     $sql = "SELECT * FROM products 
-    WHERE title LIKE ? LIMIT 10";
+    WHERE title LIKE ? LIMIT 6";
 
     
     if($stmt = mysqli_prepare($conn, $sql)){
