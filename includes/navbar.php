@@ -14,21 +14,25 @@ $doc_root = '/gameliquidators';
 
 			<li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				  Productos
+				  PRODUCTOS
 				</a>
 				<div class="dropdown-menu mega-menu" aria-labelledby="navbarDropdown">
 					<div class="row">
 						<div class="col-lg-4 col-md-4">
 							<ul>
-								<li><b><a href="<?php echo $doc_root ?>/products/ps4">PS4</a></b></li>
 								<li>
-									<a class="" href="<?php echo $doc_root ?>/products/ps4/videojuego">Juegos</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products/ps4/consola">Consolas</a>
-								</li>
-								<li>
-									<a class="" href="<?php echo $doc_root ?>/products/ps4/accesorio">Accesorios</a>
+									<a class="nav-link dropdown-toggle" href="#" id="ps4Dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">PS4</a>
+									<ul class="dropdown-menu" aria-labelledby="ps4Dropdown">
+										<li>
+											<a class="" href="<?php echo $doc_root ?>/products/ps4/videojuego">Juegos</a>
+										</li>
+										<li>
+											<a class="" href="<?php echo $doc_root ?>/products/ps4/consola">Consolas</a>
+										</li>
+										<li>
+											<a class="" href="<?php echo $doc_root ?>/products/ps4/accesorio">Accesorios</a>
+										</li>
+									</ul>
 								</li>
 							</ul>
 							<hr>
@@ -89,6 +93,11 @@ $doc_root = '/gameliquidators';
 
 				</div>
 			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#" role="button" >
+				  CONTACTANOS
+				</a>
+			</li>
 			<?php
 			if(isset($_SESSION['username'])){
 				echo "<li class='nav-item dropdown'>";
@@ -110,7 +119,7 @@ $doc_root = '/gameliquidators';
 
 				echo "<li class='nav-item search-box-container'>";
 				echo 	"<form id='searchform' class='form-inline my-2 my-lg-0' method='get' action='{$doc_root}/searches/basic-search.php'>";
-				echo 		"<input class='form-control mr-sm-2 search-box' type='search' placeholder='busqueda rapida' aria-label='Search' name='basic-search-inp' autocomplete='off'>";
+				echo 		"<input class='form-control search-box' type='search' placeholder='busqueda rapida' aria-label='Search' name='basic-search-inp' autocomplete='off'>";
 				echo 	"<input id='search-button' type='submit' value=''>";
 				// echo 		"<button class='btn btn-outline-danger my-2 my-sm-0' type='submit'>buscar</button>";
 				echo 	"</form>";
@@ -125,12 +134,15 @@ $doc_root = '/gameliquidators';
 			if(!isset($_SESSION['username'])){
 				echo "<li class='nav-item'>";
 				echo 	"<form id='searchform' class='form-inline my-2 my-lg-0' method='get' action='{$doc_root}/searches/basic-search.php'>";
-				echo 		"<input class='form-control mr-sm-2 search-box' type='search' placeholder='busqueda rapida' aria-label='Search' name='basic-search-inp' autocomplete='off'>";
-				echo 	"<input id='search-button' type='submit' value=''>";
-				// echo 		"<button class='btn btn-outline-danger my-2 my-sm-0' type='submit'>buscar</button>";
+				echo 		"<div class='search-div'>";
+				echo 			"<input type='search' name='basic-search-inp' class='form-control search-box' autocomplete='off' placeholder='Buscar'>";
+				echo 			"<button class='basic-search-btn'><i class='fas fa-search'></i></button>";
+				echo 		"</div>";
 				echo 	"</form>";
 				echo 	"<div class='result' id='result'></div>";
 				echo "</li>";
+
+
 
 				// echo "<li class='nav-item'>";
 				// echo 	"<a class='nav-link disabled' href='{$doc_root}/login'>login</a>";

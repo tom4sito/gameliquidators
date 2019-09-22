@@ -3,8 +3,11 @@
 server with default setting (user 'root' with no password) */
 $db_connect = $_SERVER['DOCUMENT_ROOT'].'/gameliquidators/includes/db_connect.php';
 require $db_connect;
+
+$root_url = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . "/gameliquidators/";
  
 if(isset($_REQUEST["term"])){
+    $live_product["products"] = array();
     // Set parameters
     $param_term = '%'.$_REQUEST["term"].'%';
     // $param_product = $_REQUEST["type"];
@@ -32,35 +35,48 @@ if(isset($_REQUEST["term"])){
 
                     // echo $sql_image;
                     $result_img = mysqli_query($conn, $sql_image);
-                    $url = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/images/';
+                    $product_url = $root_url . $row['product_url'] . "/?id=" . $row['id'];
                     // $url = "http://localhost/images/";
                     if(mysqli_num_rows($result_img) > 0){
                         while ($row_img = mysqli_fetch_assoc($result_img)) {
-                            // if(empty($row_img['image_name'])){
-                            //     echo "<p productid='{$row['id']}' platform='{$row['platform']}' product_name='{$row['title']}'>{$row['platform']}: {$row['title']}";
-                            //     echo "<img src='https://blog.springshare.com/wp-content/uploads/2010/02/nc-md.gif'  width='100' height='100'>";
-                            //     echo "</p>"; 
-                            // }
-                            echo "<p productid='{$row['id']}' platform='{$row['platform']}' product_name='{$row['title']}'>";
-                            echo "<img src='$url{$row_img['image_name']}' width='57' height='71' class='img-float'>";
-                            echo "<span class='no-wrap'>{$row['platform']}: {$row['title']}</span></p>"; 
+                            $temp_live_product = array("id"=>$row['id'],
+                                "platform"=>$row['platform'],
+                                "product_name"=>$row['title'],
+                                "product_type"=>$row['product_type'],
+                                "product_url"=>$product_url,
+                                "product_image"=>$row_img['image_name']);
+                            // echo "<p productid='{$row['id']}' platform='{$row['platform']}' product_name='{$row['title']}'>";
+                            // echo "<a href='http://www.n4g.com' class='live-product'>";
+                            // echo "<img src='$url{$row_img['image_name']}' width='57' height='71' class='img-float'>";
+                            // echo "<span class='no-wrap'>{$row['platform']}: {$row['title']}</span></a></p>"; 
                         }
                     }
                     else{
-                        // echo "<p productid='{$row['id']}'> {$row['platform']}: {$row['title']}</p>";
-                            echo "<p productid='{$row['id']}' platform='{$row['platform']}' product_name='{$row['title']}'>";
-                            echo "<img src='{$url}unavailable_thumb.jpg'  width='57' height='71' class='img-float'>";
-                            echo "<span class='no-wrap'>{$row['platform']}: {$row['title']}</span></p>"; 
+                        $temp_live_product = array("id"=>$row['id'],
+                            "platform"=>$row['platform'],
+                            "product_name"=>$row['title'],
+                            "product_type"=>$row['product_type'],
+                            "product_url"=>$product_url,
+                            "product_image"=>"unavailable_thumb.jpg");
+                            // echo "<p productid='{$row['id']}' platform='{$row['platform']}' product_name='{$row['title']}'>";
+                            // echo "<img src='{$url}unavailable_thumb.jpg'  width='57' height='71' class='img-float'>";
+                            // echo "<span class='no-wrap'>{$row['platform']}: {$row['title']}</span></p>"; 
 
                     }
-
+                    $live_product["products"][] = $temp_live_product;
+                    $live_product["result"] = True;
+                    $live_product["error"] = False;
                 }
             } else{
-                echo "<p>No matches found</p>";
+                // echo "<p>No matches found</p>";
+                $live_product["result"] = False;
             }
         } else{
-            echo "ERROR: Could not execute $sql. " . mysqli_error($conn);
+            // echo "ERROR: Could not execute $sql. " . mysqli_error($conn);
+            $live_product["error"] = True;
         }
+        $returnedJson = json_encode($live_product);
+        echo $returnedJson;
     }
      
     // Close statement

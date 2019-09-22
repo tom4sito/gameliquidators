@@ -55,12 +55,12 @@ function renderSeach($db, $platform, $productType, $limit){
 			$product_html .=				"<a href='show/?id={$value['id']}'>";
 			$product_html .=					"<div class='product-thumb-title'>{$value['title']}</div>";
 			$product_html .=				"</a>";
-			$product_html .=				"<div class='product-thumb-platform'>{$value['platform']} | {$productTag}</div>";
-			$product_html .=				"<div class='product-thumb-price'>Usado: <span class='bold-text'> \${$value['price_used']}</span></div>";
-			$product_html .=				"<div class='product-thumb-price'>Nuevo: <span class='bold-text'>  \${$value['price_new']}</span></div>";
+			$product_html .=				"<div class='product-thumb-platform'><span>{$value['platform']}</span> | {$productTag}</div>";
+			$product_html .=				"<div class='product-thumb-price'><span class='bold-text'>Usado:</span> \${$value['price_used']}</div>";
+			$product_html .=				"<div class='product-thumb-price'><span class='bold-text'>Nuevo:</span>   \${$value['price_new']}</div>";
 			$product_html .=				"<div class='product-thumb-studio'>";
 			// $product_html .=					"<span class='thumb-product-stock'>Fabricante: </span> ";
-			$product_html .=					"Fabricante: <span class='bold-text'> {$value['studio']}</span>";
+			$product_html .=					"<span class='bold-text'>Fabricante:</span>  {$value['studio']}";
 			$product_html .=				"</div>";
 			$product_html .=			"</div>";
 			// $product_html .=    	"</div>";
@@ -137,10 +137,10 @@ function renderConditionFilter($db, $platform, $productType, $column){
 	$conditionState = "";
 
 	if($column == "quantity_used"){
-		$conditionState = "used";
+		$conditionState = "usado";
 	}
 	else{
-		$conditionState = "new";
+		$conditionState = "nuevo";
 	}
 
 	if(mysqli_num_rows($result) > 0){
@@ -151,7 +151,7 @@ function renderConditionFilter($db, $platform, $productType, $column){
 		}
 		$conditionHtml .= "<div>";
 		$conditionHtml .= 	"<input type='checkbox' name='condition-{$conditionState}' filter-name='{$conditionState}' class='condition-filter grab-filter' condition='{$conditionState}' filter-type='condition' qty='{$condition}'>";
-		$conditionHtml .=	"<span> {$conditionState} ({$condition})</span>";
+		$conditionHtml .=	"<span> ". ucfirst($conditionState) ." ({$condition})</span>";
 		$conditionHtml .= "</div>";
 	}
 	return $conditionHtml;
@@ -336,7 +336,7 @@ function genPagination($totalProducts, $prodsPerPage, $initialNextOffset){
 	$selected = "";
 
 	$paginationHtml = "";
-	$paginationHtml .= "<a class='pagination-previous' href='#'><span>&laquo; Previo &nbsp;</span></a>";
+	$paginationHtml .= "<a class='pagination-previous' href='#'><i class='fas fa-caret-left'></i> Previo &nbsp;</a>";
 	$paginationHtml .= "<div class='pagination-pages'>";
 	for ($i = 1; $i <= $numOfPages; $i++ ){
 		if((($i - 1) * $prodsPerPage) == 0){
@@ -346,7 +346,7 @@ function genPagination($totalProducts, $prodsPerPage, $initialNextOffset){
 		$selected = "";
 	}
 	$paginationHtml .= "</div>";
-	$paginationHtml .= "<a class='pagination-next selectpage' href='#' pageoffset='{$initialNextOffset}'><span> &nbsp; Siguiente &raquo;</span></a>";
+	$paginationHtml .= "<a class='pagination-next selectpage' href='#' pageoffset='{$initialNextOffset}'> &nbsp; Siguiente <i class='fas fa-caret-right'></i></a>";
 	return $paginationHtml;
 }
 

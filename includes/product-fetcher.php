@@ -52,21 +52,21 @@ if(count($decoded_data['queries']['pricerange']) > 0){
 if(count($decoded_data['queries']['condition']) > 0){
 	foreach ($decoded_data['queries']['condition'] as $key => $condition_value) {
 		if($key == 0){
-			if(strpos($condition_value[0], "new") !== false){
+			if(strpos($condition_value[0], "nuevo") !== false){
 				$sql .= "AND (quantity_new > 0 ";
 				$sql_count .= "AND quantity_new > 0 ";
 			}
-			if(strpos($condition_value[0], "used") !== false){
+			if(strpos($condition_value[0], "usado") !== false){
 				$sql .= "AND (quantity_used > 0 ";
 				$sql_count .= "AND (quantity_used > 0 ";
 			}
 		}
 		else{
-			if(strpos($condition_value[0], "new") !== false){
+			if(strpos($condition_value[0], "nuevo") !== false){
 				$sql .= "OR quantity_new > 0 ";
 				$sql_count .= "OR quantity_new > 0 ";
 			}
-			if(strpos($condition_value[0], "used") !== false){
+			if(strpos($condition_value[0], "usado") !== false){
 				$sql .= "OR quantity_used > 0 ";
 				$sql_count .= "OR quantity_used > 0 ";
 			}
@@ -134,6 +134,7 @@ function renderSeach($db, $query, $query2, $decoded_data){
 			// echo $value['platform'].": ".$value['title'] . " <br>";
 			$isAvailable = "";
 			$productImg = "";
+			$productTag = "";
 			$urlImg = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/images/';
 
 			if($value['quantity_new'] > 0 or $value['quantity_used'] > 0){
@@ -156,6 +157,18 @@ function renderSeach($db, $query, $query2, $decoded_data){
 				$productImg = $urlImg . "unavailable_thumb.jpg";
 			}
 
+			// query to fetch product tag
+			$tag_sql = "SELECT tag_name FROM tag t1 
+			INNER JOIN product_tag t2 
+			ON t1.tag_id = t2.tag_id 
+			AND t2.product_id = {$value['id']}";
+
+			$tag_result = mysqli_query($db, $tag_sql);
+			if(mysqli_num_rows($tag_result) > 0){
+				$tag_row = mysqli_fetch_assoc($tag_result);
+				$productTag = $tag_row['tag_name'];
+			}
+
 			// array with all product info
 			$tempProductArr = array("image"=>$productImg,
 				"id"=>"{$value['id']}", 
@@ -166,7 +179,8 @@ function renderSeach($db, $query, $query2, $decoded_data){
 				"is_available"=>$isAvailable,
 				"studio"=>"{$value['studio']}",
 				"qty_new"=>"{$value['quantity_new']}",
-				"qty_used"=>"{$value['quantity_used']}"
+				"qty_used"=>"{$value['quantity_used']}",
+				"tag"=>$productTag
 			);
 
 			// pushes single product array into full products list array

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>layout</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css">
+	<style>
+	<style type="text/css">
+		/* Basic styling */
+		* {
+		  box-sizing: border-box;
+		  padding: 0;
+		  margin: 0;
+		}
+		body {
+		  font-family: sans-serif;
+		  background: #f1f1f1;
+		}
+		nav {
+		  /*background: #222;*/
+		}
+		ul {
+		  list-style-type: none;
+		  margin-block-start: 5px;
+		  margin-block-end: 5px;
+		}
+		a {
+		  color: #000;
+		  text-decoration: none;
+		}
+		a:hover {
+		  text-decoration: underline;
+		}
+		.logo a:hover {
+		  text-decoration: none;
+		}
+		.menu li {
+		  font-size: 16px;
+		  padding: 15px 5px;
+		  white-space: nowrap;
+		}
+		.logo a,
+		.toggle a {
+		  font-size: 20px;
+		}
+		.button.secondary {
+		  border-bottom: 1px #444 solid;
+		}
+		/* Mobile menu */
+		.menu {
+		  display: flex;
+		  flex-wrap: wrap;
+		  justify-content: space-between;
+		  align-items: center;
+		  padding-inline-start: 10px;
+		}
+		.toggle {
+		  order: 1;
+		}
+		.item.button {
+		  order: 2;
+		}
+		.item {
+		  width: 100%;
+		  text-align: center;
+		  order: 3;
+		  display: none;
+		}
+		.item.active {
+		  display: block;
+		}
+		.display-off{
+			display: none;
+		}
+		/* Tablet menu */
+		@media all and (min-width: 600px) {
+		  .menu {
+		    justify-content: center;
+		  }
+		  .login {
+		    flex: 1;
+		  }
+		  .toggle {
+		    flex: 1;
+		    text-align: right;
+		  }
+		  .item.button {
+		    width: auto;
+		    order: 1;
+		    display: block;
+		  }
+		  .toggle {
+		    order: 2;
+		  }
+		  .button.secondary {
+		    border: 0;
+		  }
+		  .button a {
+		    padding: 7.5px 15px;
+		    background: teal;
+		    border: 1px #006d6d solid;
+		  }
+		  .button.secondary a {
+		    background: transparent;
+		  }
+		  .button a:hover {
+		    text-decoration: none;
+		  }
+		  .button:not(.secondary) a:hover {
+		    background: #006d6d;
+		    border-color: #005959;
+		  }
+		  .button.secondary a:hover {
+		    color: #ddd;
+		  }
+		}
+		/* Desktop menu */
+		@media all and (min-width: 900px) {
+		  .item {
+		    display: block;
+		    width: auto;
+		  }
+		  .toggle {
+		    display: none;
+		  }
+		  .logo {
+		    order: 0;
+		  }
+		  .item {
+		    order: 1;
+		  }
+		  .button {
+		    order: 2;
+		  }
+		  .login {
+		    text-align: right !important;
+		  }
+		  .menu li {
+		    padding: 15px 10px;
+		  }
+		  .menu li.button {
+		    padding-right: 0;
+		  }
+
+		  /*experimental dropdown !!!!!!!!!!!!!!!!!!!!!*/
+		  .mega-menu{
+		  	width: 1180px;
+		  }
+		  .product-menu {
+		      display: flex;
+		      flex-wrap: wrap;
+		  }
+
+		}
+	</style>
+</head>
+<body>
+	<nav>
+		<ul class="menu">
+			<li class="logo"><a href="#">Invisible App</a></li>
+			<li class="item"><a href="#">Products</a></li>
+			<li class="item"><a href="#">Contactanos</a></li>
+			<li class="item"><a href="#">Buscar</a></li>
+			<li class="item login"><a href="#">Ingresa <i class="fas fa-sign-in-alt"></i></a></li>
+			<li class="toggle"><a href="#"><i class="fas fa-bars"></i></a></li>
+		</ul>
+	</nav>
+<div class="mega-menu">
+		<div class="product-menu">
+			<ul class="product-menu-col">
+				<li class="show-sub-menu"><span>PS4</span>
+					<ul class="display-off">
+						<li>CONSOLAS</li>
+						<li>JUEGOS</li>
+						<li>ACCESORIOS</li>
+					</ul>
+				</li>
+				<li class="show-sub-menu"><span>XBOX</span>
+					<ul class="display-off">
+						<li>CONSOLAS</li>
+						<li>JUEGOS</li>
+						<li>ACCESORIOS</li>
+					</ul>
+				</li>
+				<li class="show-sub-menu"><span>NINTENDO</span></li>
+			</ul>
+			<ul class="product-menu-col">
+				<li class="show-sub-menu"><span>CELULARES</span>
+					<ul class="display-off">
+						<li>APPLE</li>
+						<li>ANDROID</li>
+						<li>ACCESORIOS</li>
+					</ul>
+				</li>
+				<li class="show-sub-menu"><span>COMPUTADORES</span>
+					<ul class="display-off">
+						<li>DESKTOP</li>
+						<li>LAPTOP</li>
+						<li>ACCESORIOS</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div> 
+	<script type="text/javascript" src="/gameliquidators/js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript">
+		$(function() {
+		    $(".toggle").on("click", function() {
+		        if ($(".item").hasClass("active")) {
+		            $(".item").removeClass("active");
+		            $(this).find("a").html("<i class='fas fa-bars'></i>");
+		        } else {
+		            $(".item").addClass("active");
+		            $(this).find("a").html("<i class='fas fa-times'></i>");
+		        }
+		    });
+
+		    $("li.show-sub-menu").on("mouseenter", function(){
+		    	ulSubMenu = $(this).children()[1];
+		    	$(ulSubMenu).removeClass("display-off");
+		    	console.log("in");
+		    });
+
+		    $("li.show-sub-menu").on("mouseleave", function(){
+		    	ulSubMenu = $(this).children()[1];
+		    	$(ulSubMenu).addClass("display-off");
+		    });
+		});
+	</script>
+</body>
+</html>
